@@ -9,7 +9,8 @@
   "workspaces": [
     "packages/*"
   ],
-  "scripts": {
-    "postinstall": "cd ./packages/site/ && npm run genabi"
+  "dependencies": {
+    "@chatscope/chat-ui-kit-react": "^2.1.1",
+    "@chatscope/chat-ui-kit-styles": "^1.4.0"
   }
 }
