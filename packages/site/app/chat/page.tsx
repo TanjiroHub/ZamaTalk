@@ -8,6 +8,7 @@ import {
 } from "@chatscope/chat-ui-kit-react";
 
 import ChatSidebarUserHeader from "@/components/chat/ChatSidebarUserHeader";
+import ChatBotConversationList from "@/components/chat/ChatBotConversationList";
 
 const Chat: React.FC = () => {
   return (
@@ -15,6 +16,7 @@ const Chat: React.FC = () => {
       <MainContainer>
         <Sidebar position="left">
           <ChatSidebarUserHeader />
+          <ChatBotConversationList />
         </Sidebar>
 
         <ChatContainer></ChatContainer>
