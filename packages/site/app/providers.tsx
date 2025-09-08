@@ -1,5 +1,7 @@
 "use client";
 
+import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
+
 import type { ReactNode } from "react";
 
 import { MetaMaskProvider } from "@/hooks/metamask/useMetaMaskProvider";

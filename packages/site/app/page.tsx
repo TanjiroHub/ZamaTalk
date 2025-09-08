@@ -1,7 +1,6 @@
 "use client";
 
 import "@/styles/login.scss";
-import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 
 import React, { useState } from "react";
 import { FaUser } from "react-icons/fa";

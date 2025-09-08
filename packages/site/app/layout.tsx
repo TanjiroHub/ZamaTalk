@@ -15,8 +15,8 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`text-foreground antialiased`}>
-        <main className="w-full flex flex-col">
+      <body className={`h-screen text-foreground antialiased`}>
+        <main className="h-full w-full flex flex-col">
           <Providers>{children}</Providers>
         </main>
       </body>
