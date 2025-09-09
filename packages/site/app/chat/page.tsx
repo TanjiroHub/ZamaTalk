@@ -1,14 +1,17 @@
 "use client";
 
+import "@/styles/chat-messages.scss";
+
 import React from "react";
 import ChatContainer from "@/components/shared/Container";
 import {
   Sidebar,
   MainContainer,
-  ConversationHeader,
+  MessageInput,
 } from "@chatscope/chat-ui-kit-react";
 
 import ChatHeader from "@/components/chat/ChatHeader";
+import ChatMessages from "@/components/chat/ChatMessages";
 import ChatSidebarUserHeader from "@/components/chat/ChatSidebarUserHeader";
 import ChatBotConversationList from "@/components/chat/ChatBotConversationList";
 
@@ -23,6 +26,7 @@ const Chat: React.FC = () => {
 
         <ChatContainer>
           <ChatHeader name="Jony Nguyen" />
+          <ChatMessages />
         </ChatContainer>
       </MainContainer>
     </div>
