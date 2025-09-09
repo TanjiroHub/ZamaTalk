@@ -1,12 +1,14 @@
 "use client";
 
 import React from "react";
+import ChatContainer from "@/components/shared/Container";
 import {
-  MainContainer,
   Sidebar,
-  ChatContainer,
+  MainContainer,
+  ConversationHeader,
 } from "@chatscope/chat-ui-kit-react";
 
+import ChatHeader from "@/components/chat/ChatHeader";
 import ChatSidebarUserHeader from "@/components/chat/ChatSidebarUserHeader";
 import ChatBotConversationList from "@/components/chat/ChatBotConversationList";
 
@@ -19,7 +21,9 @@ const Chat: React.FC = () => {
           <ChatBotConversationList />
         </Sidebar>
 
-        <ChatContainer></ChatContainer>
+        <ChatContainer>
+          <ChatHeader name="Jony Nguyen" />
+        </ChatContainer>
       </MainContainer>
     </div>
   );
