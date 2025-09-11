@@ -28,18 +28,28 @@ export const mockMessages = [
 const ChatMessages: React.FC = () => {
   return (
     <MessageList>
-      {mockMessages.map((msg) => (
-        <Message
-          key={msg.id}
-          model={{
-            message: msg.message,
-            sentTime: msg.sentTime,
-            sender: msg.sender,
-            direction: msg.direction as "incoming" | "outgoing",
-            position: "single",
-          }}
-        />
-      ))}
+      {mockMessages.map((msg, index) => {
+        const nextMsg = mockMessages[index + 1];
+        const isLastInGroup = !nextMsg || nextMsg.sender !== msg.sender || nextMsg.direction !== msg.direction;
+
+        return (
+          <Message
+            key={msg.id}
+            model={{
+              message: msg.message,
+              sender: msg.sender,
+              direction: msg.direction as "incoming" | "outgoing",
+              position: "single",
+            }}
+          >
+            {isLastInGroup && (
+              <Message.Footer>
+                <span className="text-xs text-gray-400">{msg.sentTime}</span>
+              </Message.Footer>
+            )}
+          </Message>
+        );
+      })}
     </MessageList>
   );
 };
