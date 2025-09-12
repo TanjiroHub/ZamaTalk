@@ -78,9 +78,42 @@ const ChatHeader: React.FC = () => {
         </div>
       </div>
 
-      {/* Avatar Profile */}
-      <div className="hover:scale-105 transition-transform duration-300 cursor-pointer ring-2 ring-white shadow-lg rounded-[20px]">
-        <Avatar name={"Jony Nguyen"} />
+      {/* Avatar Profile + Dropdown */}
+      <div className="relative group">
+        <div className="hover:scale-105 transition-transform duration-300 cursor-pointer ring-2 ring-white shadow-lg rounded-[20px]">
+          <Avatar name={"Jony Nguyen"} />
+        </div>
+
+        <div className="hidden group-hover:block absolute right-0 mt-3 w-[300px] rounded-[12px] shadow-lg bg-white z-50">
+          <div className="absolute -top-6 right-0 h-6 w-full bg-transparent" />
+
+          <div className="p-4 flex flex-col">
+            <div className="flex justify-center">
+              <Avatar name={"Jony Nguyen"} />
+            </div>
+
+            <div className="mt-3 space-y-4">
+              <div className="flex items-center">
+                <p className="text-xs text-gray-400 min-w-[80px]">User Name:</p>
+                <p className="font-semibold text-gray-800">Jony Nguyen</p>
+              </div>
+
+              <div className="flex items-center">
+                <p className="text-xs text-gray-400 min-w-[80px]">Address:</p>
+                <p className="text-sm text-gray-500 truncate">0x12a3...89ffff</p>
+              </div>
+
+              <div className="flex items-center">
+                <p className="text-xs text-gray-400 min-w-[80px]">Balance:</p>
+                <p className="text-[#ffd200] font-medium">2.34 ETH</p>
+              </div>
+            </div>
+
+            <button className="mt-6 w-full px-4 py-2 rounded-[8px] bg-yellow-300 hover:[background-color:#ffd200] text-gray-600 font-semibold transition cursor-pointer">
+              Logout
+            </button>
+          </div>
+        </div>
       </div>
     </header>
   );
