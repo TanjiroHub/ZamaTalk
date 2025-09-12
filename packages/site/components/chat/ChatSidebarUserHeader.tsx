@@ -10,17 +10,10 @@ const ChatSidebarUserHeader: React.FC = () => {
           <input
             type="text"
             placeholder="Search users..."
-            className="w-full h-9 pl-9 pr-3 rounded-full border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FFD200] text-sm text-gray-700 placeholder-gray-400"
+            className="w-full h-9 pl-9 pr-3 rounded-full border border-gray-300 shadow-sm focus:outline-none focus:ring-1 focus:ring-[#FFD200] text-sm text-gray-700 placeholder-gray-400"
           />
         </div>
       </div>
-
-      {/* <button
-        aria-label="Add user"
-        className="flex items-center justify-center w-8 h-8 rounded-full bg-[#FFD200] text-black shadow hover:bg-yellow-400 transition-colors"
-      >
-        <FaPlus size={16} />
-      </button> */}
     </div>
   );
 };

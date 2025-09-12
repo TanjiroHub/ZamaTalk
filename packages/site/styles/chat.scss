@@ -76,3 +76,21 @@
     }
   }
 }
+
+.cs-conversation:hover {
+  background-color: #fefce8 !important;
+}
+
+.cs-conversation.cs-conversation--active {
+  background-color: #fefce8 !important;
+}
+
+.ps__thumb-y {
+  background: #fef9c3 !important;
+}
+
+.chat-header {
+  .scrollbar-container {
+    max-height: 400px;
+  }
+}
