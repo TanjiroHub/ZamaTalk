@@ -1,33 +1,41 @@
 import React from "react";
+import { createAvatar } from "@dicebear/core";
+import { funEmoji } from "@dicebear/collection";
 
 interface CustomAvatarProps {
   name: string;
   src?: string;
+  size?: number;
 }
 
-const Avatar: React.FC<CustomAvatarProps> = ({ name, src }) => {
-  const initials = name
-    .split(" ")
-    .map((n) => n[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-
+const Avatar: React.FC<CustomAvatarProps> = ({ name, src, size = 40 }) => {
   function onError(e: React.SyntheticEvent<HTMLImageElement, Event>): void {
     e.currentTarget.style.display = "none";
   }
 
+  const avatarSvg = createAvatar(funEmoji, {
+    seed: name,
+    size,
+  }).toDataUri();
+
   return (
-    <div className="relative flex items-center justify-center w-10 h-10 rounded-full zama-bg text-black font-bold">
+    <div
+      className="relative flex items-center justify-center rounded-full overflow-hidden bg-gray-200"
+      style={{ width: size, height: size }}
+    >
       {src ? (
         <img
           src={src}
           alt={name}
-          className="w-full h-full rounded-full object-cover"
+          className="w-full h-full object-cover"
           onError={onError}
         />
       ) : (
-        initials
+        <img
+          src={avatarSvg}
+          alt={name}
+          className="w-full h-full object-cover"
+        />
       )}
     </div>
   );
