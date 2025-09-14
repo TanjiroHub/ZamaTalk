@@ -12,10 +12,12 @@ type Props = {
   children: ReactNode;
 };
 
+import { INFURA_RPC_ENDPOINT } from "@/constants";
+
 export function Providers({ children }: Props) {
   return (
     <MetaMaskProvider>
-      <MetaMaskEthersSignerProvider initialMockChains={{ 31337: "http://localhost:8545" }}>
+      <MetaMaskEthersSignerProvider initialMockChains={{ 11155111: INFURA_RPC_ENDPOINT }}>
         <InMemoryStorageProvider>{children}</InMemoryStorageProvider>
       </MetaMaskEthersSignerProvider>
     </MetaMaskProvider>
