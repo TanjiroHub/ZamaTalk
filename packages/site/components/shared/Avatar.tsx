@@ -1,6 +1,6 @@
 import React from "react";
 import { createAvatar } from "@dicebear/core";
-import { funEmoji } from "@dicebear/collection";
+import { dylan } from "@dicebear/collection";
 
 interface CustomAvatarProps {
   name: string;
@@ -13,7 +13,7 @@ const Avatar: React.FC<CustomAvatarProps> = ({ name, src, size = 40 }) => {
     e.currentTarget.style.display = "none";
   }
 
-  const avatarSvg = createAvatar(funEmoji, {
+  const avatarSvg = createAvatar(dylan, {
     seed: name,
     size,
   }).toDataUri();
