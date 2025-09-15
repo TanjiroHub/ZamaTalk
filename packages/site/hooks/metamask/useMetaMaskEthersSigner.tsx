@@ -27,11 +27,12 @@ export interface UseMetaMaskEthersSignerState {
   initialMockChains: Readonly<Record<number, string>> | undefined;
   acount: string | undefined,
   disconnect: () => void;
+  switchToSepoliaNetwork:  () => void;
 }
 
 function useMetaMaskEthersSignerInternal(parameters: { initialMockChains?: Readonly<Record<number, string>> }): UseMetaMaskEthersSignerState {
   const { initialMockChains } = parameters;
-  const { provider, chainId, accounts, isConnected, connect, error, disconnect } = useMetaMask();
+  const { provider, chainId, accounts, isConnected, connect, error, disconnect, switchToSepoliaNetwork } = useMetaMask();
   const [ethersSigner, setEthersSigner] = useState<
     ethers.JsonRpcSigner | undefined
   >(undefined);
@@ -111,6 +112,7 @@ function useMetaMaskEthersSignerInternal(parameters: { initialMockChains?: Reado
     initialMockChains,
     acount: accounts?.[0],
     disconnect,
+    switchToSepoliaNetwork,
   };
 }
 

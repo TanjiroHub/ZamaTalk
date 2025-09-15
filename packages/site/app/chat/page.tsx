@@ -13,11 +13,7 @@ import ChatMessageHeader from "@/components/chat/ChatMessageHeader";
 import ChatSidebarUserHeader from "@/components/chat/ChatSidebarUserHeader";
 import ChatBotConversationList from "@/components/chat/ChatBotConversationList";
 
-import { useFHEZamaTalk } from "@/hooks/useFHEZamaTalk";
-
 const Chat: React.FC = () => {
-  useFHEZamaTalk();
-
   return (
     <div className="h-full">
       <ChatHeader />
