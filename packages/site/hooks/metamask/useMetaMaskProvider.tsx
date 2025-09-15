@@ -9,6 +9,7 @@ import {
 } from "react";
 import { Eip1193Provider, ethers } from "ethers";
 import { useEip6963 } from "./useEip6963";
+import { CHAIN_ID } from '@/constants'
 
 interface ProviderConnectInfo {
   readonly chainId: string;
@@ -52,6 +53,7 @@ export interface UseMetaMaskState {
   error: Error | undefined;
   connect: () => void;
   disconnect: () => void;
+  switchToSepoliaNetwork: () => void;
 }
 
 function useMetaMaskInternal(): UseMetaMaskState {
@@ -83,7 +85,7 @@ function useMetaMaskInternal(): UseMetaMaskState {
 
   const isConnected = hasProvider && hasAccounts && hasChain;
 
-  const connect = useCallback(() => {
+  const connect = useCallback(async() => {
     if (!_currentProvider) {
       return;
     }
@@ -94,8 +96,20 @@ function useMetaMaskInternal(): UseMetaMaskState {
     }
 
     // Prompt connection
-    _currentProvider.request({ method: "eth_requestAccounts" });
+    await switchToSepoliaNetwork()
+
+    const connectedAccounts = await _currentProvider.request({ method: "eth_requestAccounts" });
+    _setAccounts(connectedAccounts);
   }, [_currentProvider, accounts]);
+
+  const switchToSepoliaNetwork = async () => {
+    if (_currentProvider && chainId !== Number.parseInt(CHAIN_ID, 16)) {
+      await _currentProvider.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: CHAIN_ID }],
+      });
+    }
+  };
 
   const disconnect = useCallback(() => {
     _setCurrentProvider(undefined);
@@ -302,6 +316,7 @@ function useMetaMaskInternal(): UseMetaMaskState {
     error: eip6963Error,
     connect,
     disconnect,
+    switchToSepoliaNetwork,
   };
 }
 
@@ -314,7 +329,7 @@ const MetaMaskContext = createContext<UseMetaMaskState | undefined>(undefined);
 export const MetaMaskProvider: React.FC<MetaMaskProviderProps> = ({
   children,
 }) => {
-  const { provider, chainId, accounts, isConnected, error, connect, disconnect } =
+  const { provider, chainId, accounts, isConnected, error, connect, disconnect, switchToSepoliaNetwork } =
     useMetaMaskInternal();
   return (
     <MetaMaskContext.Provider
@@ -326,6 +341,7 @@ export const MetaMaskProvider: React.FC<MetaMaskProviderProps> = ({
         error,
         connect,
         disconnect,
+        switchToSepoliaNetwork,
       }}
     >
       {children}
