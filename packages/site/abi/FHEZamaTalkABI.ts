@@ -4,6 +4,62 @@ export const FHEZamaTalkABI = {
       anonymous: false,
       inputs: [
         {
+          indexed: false,
+          internalType: "uint256",
+          name: "conversationId",
+          type: "uint256",
+        },
+        {
+          indexed: false,
+          internalType: "address",
+          name: "sender",
+          type: "address",
+        },
+        {
+          indexed: false,
+          internalType: "address",
+          name: "receiver",
+          type: "address",
+        },
+      ],
+      name: "ConversationCreated",
+      type: "event",
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "messageId",
+          type: "uint256",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "conversationId",
+          type: "uint256",
+        },
+        {
+          indexed: false,
+          internalType: "address",
+          name: "from",
+          type: "address",
+        },
+        {
+          indexed: false,
+          internalType: "address",
+          name: "to",
+          type: "address",
+        },
+      ],
+      name: "MessageSent",
+      type: "event",
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
           indexed: true,
           internalType: "address",
           name: "user",
@@ -41,6 +97,45 @@ export const FHEZamaTalkABI = {
     {
       inputs: [
         {
+          internalType: "uint256",
+          name: "",
+          type: "uint256",
+        },
+      ],
+      name: "conversations",
+      outputs: [
+        {
+          internalType: "uint256",
+          name: "id",
+          type: "uint256",
+        },
+        {
+          internalType: "address",
+          name: "sender",
+          type: "address",
+        },
+        {
+          internalType: "address",
+          name: "receiver",
+          type: "address",
+        },
+        {
+          internalType: "uint64",
+          name: "createdAt",
+          type: "uint64",
+        },
+        {
+          internalType: "enum FHEZamaTalk.Status",
+          name: "status",
+          type: "uint8",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
           internalType: "string",
           name: "name",
           type: "string",
@@ -61,6 +156,62 @@ export const FHEZamaTalkABI = {
       name: "deactivateProfile",
       outputs: [],
       stateMutability: "nonpayable",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
+          internalType: "uint256",
+          name: "conversationId",
+          type: "uint256",
+        },
+      ],
+      name: "getMessages",
+      outputs: [
+        {
+          components: [
+            {
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "conversationId",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "sender",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "receiver",
+              type: "address",
+            },
+            {
+              internalType: "uint64",
+              name: "createdAt",
+              type: "uint64",
+            },
+            {
+              internalType: "enum FHEZamaTalk.Status",
+              name: "status",
+              type: "uint8",
+            },
+            {
+              internalType: "euint256[]",
+              name: "content",
+              type: "bytes32[]",
+            },
+          ],
+          internalType: "struct FHEZamaTalk.Message[]",
+          name: "out",
+          type: "tuple[]",
+        },
+      ],
+      stateMutability: "view",
       type: "function",
     },
     {
@@ -93,6 +244,90 @@ export const FHEZamaTalkABI = {
           internalType: "struct FHEZamaTalk.UserProfile",
           name: "",
           type: "tuple",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
+          internalType: "uint256",
+          name: "",
+          type: "uint256",
+        },
+      ],
+      name: "messages",
+      outputs: [
+        {
+          internalType: "uint256",
+          name: "id",
+          type: "uint256",
+        },
+        {
+          internalType: "uint256",
+          name: "conversationId",
+          type: "uint256",
+        },
+        {
+          internalType: "address",
+          name: "sender",
+          type: "address",
+        },
+        {
+          internalType: "address",
+          name: "receiver",
+          type: "address",
+        },
+        {
+          internalType: "uint64",
+          name: "createdAt",
+          type: "uint64",
+        },
+        {
+          internalType: "enum FHEZamaTalk.Status",
+          name: "status",
+          type: "uint8",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [],
+      name: "myConversations",
+      outputs: [
+        {
+          components: [
+            {
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "sender",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "receiver",
+              type: "address",
+            },
+            {
+              internalType: "uint64",
+              name: "createdAt",
+              type: "uint64",
+            },
+            {
+              internalType: "enum FHEZamaTalk.Status",
+              name: "status",
+              type: "uint8",
+            },
+          ],
+          internalType: "struct FHEZamaTalk.Conversation[]",
+          name: "out",
+          type: "tuple[]",
         },
       ],
       stateMutability: "view",
@@ -168,6 +403,29 @@ export const FHEZamaTalkABI = {
         },
       ],
       stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
+          internalType: "address",
+          name: "to",
+          type: "address",
+        },
+        {
+          internalType: "externalEuint256[]",
+          name: "contentExt",
+          type: "bytes32[]",
+        },
+        {
+          internalType: "bytes[]",
+          name: "proofs",
+          type: "bytes[]",
+        },
+      ],
+      name: "sendMessage",
+      outputs: [],
+      stateMutability: "nonpayable",
       type: "function",
     },
     {
