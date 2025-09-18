@@ -6,7 +6,7 @@ export type ZamaTalkChainInfo = {
 
 export const FHEZamaTalkAddresses: Record<string, ZamaTalkChainInfo> = {
   "11155111": {
-    address: "0xF2718182a1a464EF9AbC52c7BEdfAd4112484C41",
+    address: "0x1e1092F7B12e44B47d80895A1Fd170da0D261a08",
     chainId: 11155111,
     chainName: "sepolia",
   },
