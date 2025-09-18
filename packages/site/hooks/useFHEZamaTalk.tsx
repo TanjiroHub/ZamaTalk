@@ -4,7 +4,7 @@ import { INFURA_RPC_ENDPOINT } from "@/constants";
 import { FHEZamaTalkABI } from "@/abi/FHEZamaTalkABI";
 import { FHEZamaTalkAddresses } from "@/abi/FHEZamaTalkAddresses";
 
-import { useFhevm } from "@/fhevm/useFhevm";
+import { useFhevm } from "../../fhevm-react/useFhevm";
 import { useFHEZamaTalkStore } from "@/store/useFHEZamaTalkStore";
 import { useMetaMaskEthersSigner } from "@/hooks/metamask/useMetaMaskEthersSigner";
 
