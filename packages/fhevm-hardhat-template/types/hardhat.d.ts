@@ -50,9 +50,9 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.FHECounter__factory>;
     getContractFactory(
-      name: "FHEMessengerFull",
+      name: "FHEZamaTalk",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.FHEMessengerFull__factory>;
+    ): Promise<Contracts.FHEZamaTalk__factory>;
 
     getContractAt(
       name: "EthereumConfig",
@@ -100,10 +100,10 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.FHECounter>;
     getContractAt(
-      name: "FHEMessengerFull",
+      name: "FHEZamaTalk",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
-    ): Promise<Contracts.FHEMessengerFull>;
+    ): Promise<Contracts.FHEZamaTalk>;
 
     deployContract(
       name: "EthereumConfig",
@@ -142,9 +142,9 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.FHECounter>;
     deployContract(
-      name: "FHEMessengerFull",
+      name: "FHEZamaTalk",
       signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.FHEMessengerFull>;
+    ): Promise<Contracts.FHEZamaTalk>;
 
     deployContract(
       name: "EthereumConfig",
@@ -192,10 +192,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.FHECounter>;
     deployContract(
-      name: "FHEMessengerFull",
+      name: "FHEZamaTalk",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.FHEMessengerFull>;
+    ): Promise<Contracts.FHEZamaTalk>;
 
     // default types
     getContractFactory(

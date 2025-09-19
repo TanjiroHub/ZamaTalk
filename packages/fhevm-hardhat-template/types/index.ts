@@ -24,5 +24,5 @@ export type { IInputVerifier } from "./@fhevm/solidity/lib/Impl.sol/IInputVerifi
 export { IInputVerifier__factory } from "./factories/@fhevm/solidity/lib/Impl.sol/IInputVerifier__factory";
 export type { FHECounter } from "./contracts/FHECounter";
 export { FHECounter__factory } from "./factories/contracts/FHECounter__factory";
-export type { FHEMessengerFull } from "./contracts/FHEMessenger.sol/FHEMessengerFull";
-export { FHEMessengerFull__factory } from "./factories/contracts/FHEMessenger.sol/FHEMessengerFull__factory";
+export type { FHEZamaTalk } from "./contracts/FHEZamaTalk";
+export { FHEZamaTalk__factory } from "./factories/contracts/FHEZamaTalk__factory";
