@@ -13,22 +13,54 @@ import ChatMessageHeader from "@/components/chat/ChatMessageHeader";
 import ChatSidebarUserHeader from "@/components/chat/ChatSidebarUserHeader";
 import ChatBotConversationList from "@/components/chat/ChatBotConversationList";
 
+import { useFHEZamaTalkConversationStore } from "@/store/useFHEZamaTalkConversationStore";
+
 const Chat: React.FC = () => {
+  const { conversations, activeConversation } =
+    useFHEZamaTalkConversationStore();
+
+  const renderSidebar = () => {
+    if (conversations.length === 0) return null;
+
+    return (
+      <Sidebar position="left">
+        <ChatSidebarUserHeader />
+        <ChatBotConversationList />
+      </Sidebar>
+    );
+  };
+
+  const renderChatContent = () => {
+    if (conversations.length === 0) {
+      return (
+        <p className="empty-state">No conversations yet. Start a new chat!</p>
+      );
+    }
+
+    if (activeConversation === null) {
+      return (
+        <p className="empty-state">
+          Please select a conversation to start chatting!
+        </p>
+      );
+    }
+
+    return (
+      <ChatContainer>
+        <ChatMessageHeader name="Jony Nguyen" />
+        <ChatMessages />
+        <ChatMessageInput />
+      </ChatContainer>
+    );
+  };
+
   return (
     <div className="h-full">
       <ChatHeader />
 
       <MainContainer>
-        <Sidebar position="left">
-          <ChatSidebarUserHeader />
-          <ChatBotConversationList />
-        </Sidebar>
-
-        <ChatContainer>
-          <ChatMessageHeader name="Jony Nguyen" />
-          <ChatMessages />
-          <ChatMessageInput />
-        </ChatContainer>
+        {renderSidebar()}
+        {renderChatContent()}
       </MainContainer>
     </div>
   );

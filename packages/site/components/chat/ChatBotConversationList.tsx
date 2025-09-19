@@ -2,14 +2,9 @@ import React from "react";
 import Avatar from "@/components/shared/Avatar";
 import Conversation from "@/components/shared/Conversation";
 import { ConversationList } from "@chatscope/chat-ui-kit-react";
+import { Conversation as ConversationType } from "@/types";
 
-interface Bot {
-  id: string;
-  name: string;
-  info: string;
-}
-
-const bots: Bot[] = [
+const bots: ConversationType[] = [
   {
     id: "lilly",
     name: "Bot Lilly",
