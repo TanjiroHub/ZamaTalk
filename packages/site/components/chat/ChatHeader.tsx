@@ -38,7 +38,7 @@ const ChatHeader: React.FC = () => {
   return (
     <header className="chat-header h-[90px] zama-bg-gradient flex items-center justify-between px-6 shadow-lg border-b border-yellow-300">
       {/* Logo */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 mr-[30px]">
         <Image
           src="/zama-logo.svg"
           alt="Zama Logo"
@@ -80,8 +80,16 @@ const ChatHeader: React.FC = () => {
 
       {/* Avatar Profile + Dropdown */}
       <div className="relative group">
-        <div className="hover:scale-105 transition-transform duration-300 cursor-pointer ring-2 ring-white shadow-lg rounded-[20px]">
-          <Avatar name={"Jony Nguyen"} />
+        <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3">
+            <div className="w-[40px] h-[40px] hover:scale-105 transition-transform duration-300 cursor-pointer ring-2 ring-white shadow-lg rounded-[20px] overflow-hidden">
+              <Avatar name="Jony Nguyen" />
+            </div>
+            <div className="flex flex-col">
+              <span className="font-medium text-base">Jony Nguyen</span>{" "}
+              <span className="text-sm text-green-500">Active</span>{" "}
+            </div>
+          </div>
         </div>
 
         <div className="hidden group-hover:block absolute right-0 mt-3 w-[300px] rounded-[12px] shadow-lg bg-white z-50">
@@ -100,7 +108,9 @@ const ChatHeader: React.FC = () => {
 
               <div className="flex items-center">
                 <p className="text-xs text-gray-400 min-w-[80px]">Address:</p>
-                <p className="text-sm text-gray-500 truncate">0x12a3...89ffff</p>
+                <p className="text-sm text-gray-500 truncate">
+                  0x12a3...89ffff
+                </p>
               </div>
 
               <div className="flex items-center">

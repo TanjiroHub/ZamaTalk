@@ -25,8 +25,8 @@ const Login: React.FC = () => {
 
   async function onLogin(): Promise<void> {
     await switchToSepoliaNetwork();
+    if (profile !== null) return push("/chat");
     if (await nameExists(name)) return;
-
     if (profile === null) {
       await createProfile(name);
       await getProfile();
@@ -73,7 +73,7 @@ const Login: React.FC = () => {
             type="text"
             value={name}
             placeholder="Your name"
-            className={`w-full px-3 py-2 focus:outline-none text-gray-700 text-sm ${profile !== null ? "cursor-not-allowed text-[#6C7280]" : ""}`}
+            className={`w-full py-2 focus:outline-none text-gray-700 text-sm ${profile !== null ? "cursor-not-allowed text-[#6C7280]" : ""}`}
             disabled={profile !== null}
             onChange={(e) => setName(e.target.value)}
           />

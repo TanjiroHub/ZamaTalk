@@ -59,7 +59,6 @@ export const useFHEZamaTalkLoginStore = create<FHEZamaTalkLoginStore>(
         set({ loading: false });
       } catch (err: any) {
         console.error("Create profile failed", err);
-        set({ error: err?.message || "Unknown error", loading: false });
       }
     },
 
