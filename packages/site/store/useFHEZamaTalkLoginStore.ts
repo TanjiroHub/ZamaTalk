@@ -2,22 +2,19 @@ import { create } from "zustand";
 import { TransactionResponse } from "ethers";
 import { useFHEZamaTalkStore } from "./useFHEZamaTalkStore";
 
-type UserProfile = {
-  name: string;
-  avatarUrl: string;
-  createdAt: number;
-  active: boolean;
-};
+import { UserProfile } from "@/types";
 
 type FHEZamaTalkLoginStore = {
   loading: boolean;
   error: string | null;
   profile: UserProfile | null;
+  profiles: UserProfile[] | [];
 
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   nameExists: (name: string) => Promise<boolean>;
   getProfile: () => Promise<UserProfile | null>;
+  getProfiles: () => Promise<UserProfile[] | []>;
   createProfile: (name: string, avatarUrl?: string) => Promise<void>;
 };
 
@@ -26,6 +23,7 @@ export const useFHEZamaTalkLoginStore = create<FHEZamaTalkLoginStore>(
     error: null,
     loading: false,
     profile: null,
+    profiles: [],
 
     setError: (error: string | null) => set({ error }),
     setLoading: (loading: boolean) => set({ loading }),
@@ -36,7 +34,7 @@ export const useFHEZamaTalkLoginStore = create<FHEZamaTalkLoginStore>(
 
       try {
         const exists: boolean = await contractView?.nameExists(name);
-        set({ error: exists ? 'This name already exists.' : null });
+        set({ error: exists ? "This name already exists." : null });
         return exists;
       } catch (err) {
         console.error("Check name failed", err);
@@ -44,7 +42,10 @@ export const useFHEZamaTalkLoginStore = create<FHEZamaTalkLoginStore>(
       }
     },
 
-    createProfile: async (name: string, avatarUrl: string = ""): Promise<void> => {
+    createProfile: async (
+      name: string,
+      avatarUrl: string = ""
+    ): Promise<void> => {
       const { contractTx } = useFHEZamaTalkStore.getState();
       set({ loading: true, error: null });
 
@@ -55,10 +56,10 @@ export const useFHEZamaTalkLoginStore = create<FHEZamaTalkLoginStore>(
         );
 
         await tx.wait();
-
-        set({ loading: false });
       } catch (err: any) {
         console.error("Create profile failed", err);
+      } finally {
+        set({ loading: false });
       }
     },
 
@@ -70,6 +71,8 @@ export const useFHEZamaTalkLoginStore = create<FHEZamaTalkLoginStore>(
 
         const result: UserProfile | null = profile
           ? {
+              id: profile.name ?? "",
+              wallet: profile.wallet ?? "",
               name: profile.name ?? "",
               avatarUrl: profile.avatarUrl ?? "",
               createdAt: Number(profile.createdAt ?? 0),
@@ -82,6 +85,29 @@ export const useFHEZamaTalkLoginStore = create<FHEZamaTalkLoginStore>(
       } catch (err) {
         console.error("Get profile failed", err);
         return null;
+      }
+    },
+
+    getProfiles: async (): Promise<UserProfile[]> => {
+      const { contractView } = useFHEZamaTalkStore.getState();
+
+      try {
+        const profiles = await contractView?.getProfiles();
+
+        const result: UserProfile[] = profiles.map((profile: UserProfile) => ({
+          id: profile.name ?? "",
+          wallet: profile.wallet ?? "",
+          name: profile.name ?? "",
+          avatarUrl: profile.avatarUrl ?? "",
+          createdAt: Number(profile.createdAt ?? 0),
+          active: profile.active ?? false,
+        }));
+
+        set({ profiles: result });
+        return result;
+      } catch (err) {
+        console.error("Get all profiles failed", err);
+        return [];
       }
     },
   })

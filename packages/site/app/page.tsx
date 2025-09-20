@@ -9,19 +9,19 @@ import { useRouter } from "next/navigation";
 import { FaUser } from "react-icons/fa";
 import { ClipLoader } from "react-spinners";
 import { Button } from "@chatscope/chat-ui-kit-react";
-import { useFHEZamaTalk } from "@/hooks/useFHEZamaTalk";
+import { useFHEZamaTalkContracts } from "@/hooks/useFHEZamaTalk";
 import { useFHEZamaTalkStore } from "@/store/useFHEZamaTalkStore";
 import { useFHEZamaTalkLoginStore } from "@/store/useFHEZamaTalkLoginStore";
 import { useMetaMaskEthersSigner } from "@/hooks/metamask/useMetaMaskEthersSigner";
 
 const Login: React.FC = () => {
-  useFHEZamaTalk();
+  useFHEZamaTalkContracts();
   const { push } = useRouter();
   const [name, setName] = useState("");
 
   const { contractIsReady } = useFHEZamaTalkStore();
-  const { acount, connect, switchToSepoliaNetwork } = useMetaMaskEthersSigner();
-  const { error, profile, nameExists, getProfile, createProfile } = useFHEZamaTalkLoginStore();
+  const { acount, isConnected, connect, switchToSepoliaNetwork } = useMetaMaskEthersSigner();
+  const { loading, error, profile, nameExists, getProfile, createProfile } = useFHEZamaTalkLoginStore();
 
   async function onLogin(): Promise<void> {
     await switchToSepoliaNetwork();
@@ -29,9 +29,8 @@ const Login: React.FC = () => {
     if (await nameExists(name)) return;
     if (profile === null) {
       await createProfile(name);
-      await getProfile();
+      if ((await getProfile()) !== null) push("/chat");
     }
-    push("/chat");
   }
 
   async function onConnect(): Promise<void> {
@@ -74,7 +73,7 @@ const Login: React.FC = () => {
             value={name}
             placeholder="Your name"
             className={`w-full py-2 focus:outline-none text-gray-700 text-sm ${profile !== null ? "cursor-not-allowed text-[#6C7280]" : ""}`}
-            disabled={profile !== null}
+            disabled={profile !== null || !isConnected}
             onChange={(e) => setName(e.target.value)}
           />
         </div>
@@ -92,11 +91,11 @@ const Login: React.FC = () => {
         </Button>
       </div>
 
-      {!contractIsReady && (
+      {loading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
           <ClipLoader
             color="#fef9c3"
-            loading={!contractIsReady}
+            loading={loading}
             size={45}
             aria-label="Loading Spinner"
           />

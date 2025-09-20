@@ -16,3 +16,12 @@ export type Message = {
   position?: "single" | "first" | "middle" | "last";
   avatar?: string;
 };
+
+export type UserProfile = {
+  id: string;
+  wallet: string,
+  name: string;
+  avatarUrl: string;
+  createdAt: number;
+  active: boolean;
+};

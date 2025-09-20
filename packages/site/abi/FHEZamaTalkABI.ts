@@ -226,6 +226,11 @@ export const FHEZamaTalkABI = {
               type: "string",
             },
             {
+              internalType: "address",
+              name: "wallet",
+              type: "address",
+            },
+            {
               internalType: "string",
               name: "avatarUrl",
               type: "string",
@@ -244,6 +249,46 @@ export const FHEZamaTalkABI = {
           internalType: "struct FHEZamaTalk.UserProfile",
           name: "",
           type: "tuple",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [],
+      name: "getProfiles",
+      outputs: [
+        {
+          components: [
+            {
+              internalType: "string",
+              name: "name",
+              type: "string",
+            },
+            {
+              internalType: "address",
+              name: "wallet",
+              type: "address",
+            },
+            {
+              internalType: "string",
+              name: "avatarUrl",
+              type: "string",
+            },
+            {
+              internalType: "uint64",
+              name: "createdAt",
+              type: "uint64",
+            },
+            {
+              internalType: "bool",
+              name: "active",
+              type: "bool",
+            },
+          ],
+          internalType: "struct FHEZamaTalk.UserProfile[]",
+          name: "profilesArray",
+          type: "tuple[]",
         },
       ],
       stateMutability: "view",
@@ -368,6 +413,11 @@ export const FHEZamaTalkABI = {
           type: "string",
         },
         {
+          internalType: "address",
+          name: "wallet",
+          type: "address",
+        },
+        {
           internalType: "string",
           name: "avatarUrl",
           type: "string",
@@ -384,6 +434,19 @@ export const FHEZamaTalkABI = {
         },
       ],
       stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [],
+      name: "protocolId",
+      outputs: [
+        {
+          internalType: "uint256",
+          name: "",
+          type: "uint256",
+        },
+      ],
+      stateMutability: "pure",
       type: "function",
     },
     {

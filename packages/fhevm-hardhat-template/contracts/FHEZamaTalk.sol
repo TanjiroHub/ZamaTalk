@@ -20,6 +20,7 @@ contract FHEZamaTalk is SepoliaConfig {
     /// @notice User profile information
     struct UserProfile {
         string name;
+        address wallet;
         string avatarUrl;
         uint64 createdAt;
         bool active;
@@ -48,6 +49,7 @@ contract FHEZamaTalk is SepoliaConfig {
     // ===== STORAGE =====
     uint256 private _nextConversationId = 1;
     uint256 private _nextMessageId = 1;
+    UserProfile[] private _allUserProfiles;
 
     mapping(address => UserProfile) public profiles;
     mapping(string => address) private _nameToAddress;
@@ -90,8 +92,17 @@ contract FHEZamaTalk is SepoliaConfig {
         require(bytes(profiles[msg.sender].name).length == 0, "Profile exists");
         require(_nameToAddress[name] == address(0), "Name taken");
 
-        profiles[msg.sender] = UserProfile({name: name, avatarUrl: avatarUrl, createdAt: _now(), active: true});
+        UserProfile memory profile = UserProfile({
+            wallet: msg.sender,
+            name: name,
+            avatarUrl: avatarUrl,
+            createdAt: _now(),
+            active: true
+        });
+
+        profiles[msg.sender] = profile;
         _nameToAddress[name] = msg.sender;
+        _allUserProfiles.push(profile);
 
         emit ProfileCreated(msg.sender, name);
     }
@@ -130,6 +141,12 @@ contract FHEZamaTalk is SepoliaConfig {
     function getProfile() external view returns (UserProfile memory) {
         require(bytes(profiles[msg.sender].name).length > 0, "Profile not found");
         return profiles[msg.sender];
+    }
+
+    /// @notice Returns all user profiles
+    /// @return profilesArray Array of all UserProfile structs
+    function getProfiles() external view returns (UserProfile[] memory profilesArray) {
+        return _allUserProfiles;
     }
 
     // ===== CONVERSATIONS =====

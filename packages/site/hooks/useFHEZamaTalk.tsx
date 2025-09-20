@@ -8,58 +8,51 @@ import { useFhevm } from "../../fhevm-react/useFhevm";
 import { useFHEZamaTalkStore } from "@/store/useFHEZamaTalkStore";
 import { useMetaMaskEthersSigner } from "@/hooks/metamask/useMetaMaskEthersSigner";
 
-export const useFHEZamaTalk = () => {
-  const {
-    provider,
-    chainId,
-    ethersSigner,
-    initialMockChains,
-  } = useMetaMaskEthersSigner();
+export const useFheInstance = () => {
+  const { setFhevmIsReady, setFheInstance } = useFHEZamaTalkStore();
+  const { provider, chainId, initialMockChains } = useMetaMaskEthersSigner();
 
-  const { status: fheStatus, instance: fheInstance } = useFhevm({
+  const { instance, status } = useFhevm({
     provider,
     chainId,
     initialMockChains,
     enabled: true,
   });
 
-  const {
-    contractTx,
-    contractView,
-    contractAddress,
-    setContracts,
-    setContractAddress,
-    setContractIsReady,
-    setFheInstance,
-  } = useFHEZamaTalkStore();
+  useEffect(() => {
+    if (status === "ready") {
+      setFheInstance(instance);
+      setFhevmIsReady(true);
+    }
+  }, [status]);
+};
+
+export const useFHEZamaTalkContracts = () => {
+  const { chainId, ethersSigner } = useMetaMaskEthersSigner();
+  const { contractAddress, setContractAddress, setContracts, setContractIsReady } = useFHEZamaTalkStore();
 
   useEffect(() => {
     if (chainId) {
       const address = FHEZamaTalkAddresses[String(chainId)]?.address ?? "";
       setContractAddress(address);
     }
-  }, [chainId]);
+  }, [chainId, setContractAddress]);
 
   useEffect(() => {
     if (chainId && ethersSigner && contractAddress) {
-      const contractTx = new ethers.Contract(
+      const txContract = new ethers.Contract(
         contractAddress,
         FHEZamaTalkABI.abi,
         ethersSigner
       );
-      const contractView = new ethers.Contract(
+      const viewContract = new ethers.Contract(
         contractAddress,
         FHEZamaTalkABI.abi,
         new ethers.JsonRpcProvider(INFURA_RPC_ENDPOINT)
       );
-      setContracts(contractTx, contractView);
-    }
-  }, [chainId, ethersSigner, contractAddress]);
-
-  useEffect(() => {
-    if (fheStatus === "ready" && contractTx && contractView) {
+      setContracts(txContract, viewContract);
       setContractIsReady(true);
-      setFheInstance(fheInstance);
     }
-  }, [fheStatus, contractTx, contractView]);
+  }, [chainId, ethersSigner, contractAddress, setContracts]);
 };
+
