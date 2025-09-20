@@ -1,38 +1,34 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { ethers } from "ethers";
+
 import Image from "next/image";
 import Avatar from "@/components/shared/Avatar";
 import Conversation from "@/components/shared/Conversation";
+
 import { FaSearch } from "react-icons/fa";
 import { ConversationList } from "@chatscope/chat-ui-kit-react";
-
-type User = {
-  id: number;
-  name: string;
-  address: string;
-};
+import { useFHEZamaTalkLoginStore } from "@/store/useFHEZamaTalkLoginStore";
+import { useMetaMaskEthersSigner } from "@/hooks/metamask/useMetaMaskEthersSigner";
 
 const ChatHeader: React.FC = () => {
   const [query, setQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
+  const [balance, setBalance] = useState<string>("");
 
-  const [users] = useState<User[]>([
-    { id: 1, name: "Alice Johnson", address: "0x12a3...89ff" },
-    { id: 2, name: "Bob Smith", address: "0xabcd...22ff" },
-    { id: 3, name: "Charlie Nguyen", address: "0x99ff...bb77" },
-    { id: 3, name: "Charlie Nguyen", address: "0x99ff...bb77" },
-    { id: 3, name: "Charlie Nguyen", address: "0x99ff...bb77" },
-    { id: 3, name: "Charlie Nguyen", address: "0x99ff...bb77" },
-    { id: 3, name: "Charlie Nguyen", address: "0x99ff...bb77" },
-    { id: 3, name: "Charlie Nguyen", address: "0x99ff...bb77" },
-    { id: 3, name: "Charlie Nguyen", address: "0x99ff...bb77" },
-    { id: 3, name: "Charlie Nguyen", address: "0x99ff...bb77" },
-    { id: 3, name: "Charlie Nguyen", address: "0x99ff...bb77" },
-    { id: 3, name: "Charlie Nguyen", address: "0x99ff...bb77" },
-    { id: 3, name: "Charlie Nguyen", address: "0x99ff...bb77" },
-  ]);
+  const { profile, profiles, getProfiles } = useFHEZamaTalkLoginStore();
+  useEffect(() => void getProfiles(), []);
+
+  const { acount, ethersSigner } = useMetaMaskEthersSigner();
+  useEffect(() => {
+    const getBalance = async () => {
+      const balance = await ethersSigner?.provider.getBalance(acount ?? "");
+      setBalance(balance ? ethers?.formatEther(balance).slice(0, 5) : "0");
+    };
+    getBalance();
+  }, [ethersSigner]);
 
   const filtered = query
-    ? users.filter((u) => u.name.toLowerCase().includes(query.toLowerCase()))
+    ? profiles.filter((u) => u.name.toLowerCase().includes(query.toLowerCase()))
     : [];
 
   return (
@@ -68,7 +64,7 @@ const ChatHeader: React.FC = () => {
             <div className="h-auto absolute left-0 right-0 overflow-hidden mt-1 rounded-xl shadow-lg border bg-white z-50">
               <ConversationList>
                 {filtered.map((bot) => (
-                  <Conversation key={bot.id} name={bot.name} info={bot.address}>
+                  <Conversation key={bot.id} name={bot.name} info={bot.wallet}>
                     <Avatar name={bot.name} />
                   </Conversation>
                 ))}
@@ -83,10 +79,10 @@ const ChatHeader: React.FC = () => {
         <div className="flex items-center space-x-3">
           <div className="flex items-center space-x-3">
             <div className="w-[40px] h-[40px] hover:scale-105 transition-transform duration-300 cursor-pointer ring-2 ring-white shadow-lg rounded-[20px] overflow-hidden">
-              <Avatar name="Jony Nguyen" />
+              <Avatar name={profile?.name ?? ''} />
             </div>
             <div className="flex flex-col">
-              <span className="font-medium text-base">Jony Nguyen</span>{" "}
+              <span className="font-medium text-base">{profile?.name}</span>{" "}
               <span className="text-sm text-green-500">Active</span>{" "}
             </div>
           </div>
@@ -103,19 +99,19 @@ const ChatHeader: React.FC = () => {
             <div className="mt-3 space-y-4">
               <div className="flex items-center">
                 <p className="text-xs text-gray-400 min-w-[80px]">User Name:</p>
-                <p className="font-semibold text-gray-800">Jony Nguyen</p>
+                <p className="font-semibold text-gray-800">{profile?.name}</p>
               </div>
 
               <div className="flex items-center">
                 <p className="text-xs text-gray-400 min-w-[80px]">Address:</p>
                 <p className="text-sm text-gray-500 truncate">
-                  0x12a3...89ffff
+                  {profile?.wallet}
                 </p>
               </div>
 
               <div className="flex items-center">
                 <p className="text-xs text-gray-400 min-w-[80px]">Balance:</p>
-                <p className="text-[#ffd200] font-medium">2.34 ETH</p>
+                <p className="text-[#ffd200] font-medium">{balance} ETH</p>
               </div>
             </div>
 
