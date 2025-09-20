@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { Message, Conversation } from "@/types";
+import { useFHEZamaTalkStore } from "./useFHEZamaTalkStore";
 
 type ZamaTalkConversationStore = {
   loading: boolean,
@@ -28,7 +29,13 @@ export const useFHEZamaTalkConversationStore = create<ZamaTalkConversationStore>
     setConversations: (convos) => set({ conversations: convos }),
     addConversation: (convo) => set((s) => ({ conversations: [...s.conversations, convo] })),
     fetchConversations: async () => {
+      const { contractView } = useFHEZamaTalkStore.getState();
+
       try {
+        const conversations = await contractView?.getProfiles();
+        set({ conversations: conversations });
+
+        return conversations
       } catch (err) {
         console.error("Fetch conversations failed", err);
       }

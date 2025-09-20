@@ -1,39 +1,33 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Avatar from "@/components/shared/Avatar";
 import Conversation from "@/components/shared/Conversation";
 import { ConversationList } from "@chatscope/chat-ui-kit-react";
 import { Conversation as ConversationType } from "@/types";
-
-const bots: ConversationType[] = [
-  {
-    id: "lilly",
-    name: "Bot Lilly",
-    info: "Talk to me....",
-  },
-  {
-    id: "eliot",
-    name: "Bot Eliot",
-    info: "I'm a good listener",
-  },
-  {
-    id: "mia",
-    name: "Bot Mia",
-    info: "Need advice? I'm here",
-  },
-  {
-    id: "jack",
-    name: "Bot Jack",
-    info: "Always ready for a chat",
-  },
-];
+import { useFHEZamaTalkConversationStore } from "@/store/useFHEZamaTalkConversationStore";
 
 const ChatBotConversationList: React.FC = () => {
+  const { activeConversation, conversations, setActiveConversation, } = useFHEZamaTalkConversationStore();
+
+  function handleAddFriend(conversation: ConversationType): void {
+    setActiveConversation(conversation);
+  }
+
   return (
     <ConversationList>
-      {bots.map((bot) => (
-        <Conversation key={bot.id} name={bot.name} info={bot.info}>
-          <Avatar name={bot.name} />
-        </Conversation>
+      {conversations.map((conversation) => (
+        <div
+          key={conversation.id}
+          onClick={() => handleAddFriend(conversation)}
+        >
+          <Conversation
+            key={conversation.id}
+            name={conversation.name}
+            info={conversation.createdAt}
+            active={activeConversation?.id === conversation.id}
+          >
+            <Avatar name={conversation.name} />
+          </Conversation>
+        </div>
       ))}
     </ConversationList>
   );
