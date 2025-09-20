@@ -32,7 +32,7 @@ export const useFHEZamaTalkConversationStore = create<ZamaTalkConversationStore>
       const { contractView } = useFHEZamaTalkStore.getState();
 
       try {
-        const conversations = await contractView?.getProfiles();
+        const conversations = await contractView?.myConversations();
         set({ conversations: conversations });
 
         return conversations

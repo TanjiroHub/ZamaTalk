@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import Avatar from "@/components/shared/Avatar";
 import Conversation from "@/components/shared/Conversation";
+import { renderTime } from '@/utils'
 import { ConversationList } from "@chatscope/chat-ui-kit-react";
 import { Conversation as ConversationType } from "@/types";
 import { useFHEZamaTalkConversationStore } from "@/store/useFHEZamaTalkConversationStore";
@@ -22,7 +23,7 @@ const ChatBotConversationList: React.FC = () => {
           <Conversation
             key={conversation.id}
             name={conversation.name}
-            info={conversation.createdAt}
+            info={renderTime(conversation.createdAt ?? 0)}
             active={activeConversation?.id === conversation.id}
           >
             <Avatar name={conversation.name} />
