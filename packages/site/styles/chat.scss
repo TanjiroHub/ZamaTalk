@@ -21,6 +21,26 @@
   background-color: #fdfdfc !important;
 }
 
+.cs-conversation {
+  .cs-conversation__name {
+    color: #555 !important;
+  }
+
+  .cs-conversation__info {
+    color: #555 !important;
+  }
+}
+
+.cs-conversation--active {
+  .cs-conversation__name {
+    color: rgba(0, 0, 0, 0.87) !important;
+  }
+
+  .cs-conversation__info {
+    color: rgba(0, 0, 0, 0.87) !important;
+  }
+}
+
 .cs-message__content-wrapper {
   padding: 1px;
   border-radius: 10px !important;

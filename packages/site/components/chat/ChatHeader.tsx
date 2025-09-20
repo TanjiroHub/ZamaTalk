@@ -9,16 +9,21 @@ import { FaSearch } from "react-icons/fa";
 import { ConversationList } from "@chatscope/chat-ui-kit-react";
 import { useFHEZamaTalkLoginStore } from "@/store/useFHEZamaTalkLoginStore";
 import { useMetaMaskEthersSigner } from "@/hooks/metamask/useMetaMaskEthersSigner";
+import { useFHEZamaTalkConversationStore } from "@/store/useFHEZamaTalkConversationStore";
+
+import { UserProfile, Conversation as ConversationType } from "@/types";
 
 const ChatHeader: React.FC = () => {
-  const [query, setQuery] = useState("");
-  const [isFocused, setIsFocused] = useState(false);
+  const [query, setQuery] = useState<string>("");
+  const [isFocused, setIsFocused] = useState<boolean>(false);
   const [balance, setBalance] = useState<string>("");
 
+  const { acount, ethersSigner } = useMetaMaskEthersSigner();
   const { profile, profiles, getProfiles } = useFHEZamaTalkLoginStore();
+  const { addConversation, setActiveConversation } = useFHEZamaTalkConversationStore()
+
   useEffect(() => void getProfiles(), []);
 
-  const { acount, ethersSigner } = useMetaMaskEthersSigner();
   useEffect(() => {
     const getBalance = async () => {
       const balance = await ethersSigner?.provider.getBalance(acount ?? "");
@@ -26,6 +31,21 @@ const ChatHeader: React.FC = () => {
     };
     getBalance();
   }, [ethersSigner]);
+
+  function handleAddFriend(userProfile: UserProfile): void {
+    const convo: ConversationType = {
+      id: '',
+      name: userProfile.name,
+      info: userProfile.wallet,
+      sender: acount,
+      receiver: userProfile.wallet,
+      createdAt: Date.now(),
+      status: 1,
+    };
+
+    addConversation(convo);
+    setActiveConversation(convo)
+  }
 
   const filtered = query
     ? profiles.filter((u) => u.name.toLowerCase().includes(query.toLowerCase()))
@@ -53,7 +73,7 @@ const ChatHeader: React.FC = () => {
             type="text"
             value={query}
             onFocus={() => setIsFocused(true)}
-            onBlur={() => setTimeout(() => setIsFocused(false), 150)}
+            onBlur={() => setTimeout(() => setIsFocused(false), 300)}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Add Friend by Address or Name ..."
             className="w-full h-[45px] pl-11 pr-4 rounded-[10px] border text-base shadow-sm focus:ring-2 focus:ring-yellow-500 outline-none transition"
@@ -63,10 +83,16 @@ const ChatHeader: React.FC = () => {
           {isFocused && filtered.length > 0 && (
             <div className="h-auto absolute left-0 right-0 overflow-hidden mt-1 rounded-xl shadow-lg border bg-white z-50">
               <ConversationList>
-                {filtered.map((bot) => (
-                  <Conversation key={bot.id} name={bot.name} info={bot.wallet}>
-                    <Avatar name={bot.name} />
-                  </Conversation>
+                {filtered.map((userProfile) => (
+                  <div key={userProfile.id} onClick={() => handleAddFriend(userProfile)}>
+                    <Conversation
+                      key={userProfile.id}
+                      name={userProfile.name}
+                      info={userProfile.wallet}
+                    >
+                      <Avatar name={userProfile.name} />
+                    </Conversation>
+                  </div>
                 ))}
               </ConversationList>
             </div>
@@ -79,7 +105,7 @@ const ChatHeader: React.FC = () => {
         <div className="flex items-center space-x-3">
           <div className="flex items-center space-x-3">
             <div className="w-[40px] h-[40px] hover:scale-105 transition-transform duration-300 cursor-pointer ring-2 ring-white shadow-lg rounded-[20px] overflow-hidden">
-              <Avatar name={profile?.name ?? ''} />
+              <Avatar name={profile?.name ?? ""} />
             </div>
             <div className="flex flex-col">
               <span className="font-medium text-base">{profile?.name}</span>{" "}

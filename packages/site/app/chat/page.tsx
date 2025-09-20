@@ -2,7 +2,7 @@
 
 import "@/styles/chat.scss";
 
-import React from "react";
+import React, { useEffect } from "react";
 import ChatContainer from "@/components/shared/Container";
 import { ClipLoader } from "react-spinners";
 import { Sidebar, MainContainer } from "@chatscope/chat-ui-kit-react";
@@ -21,7 +21,9 @@ import { useFHEZamaTalkConversationStore } from "@/store/useFHEZamaTalkConversat
 const Chat: React.FC = () => {
   useFheInstance()
   const { fhevmIsReady } = useFHEZamaTalkStore();
-  const { conversations, activeConversation } = useFHEZamaTalkConversationStore();
+  const { conversations, activeConversation, fetchConversations } = useFHEZamaTalkConversationStore();
+
+  useEffect(() => void fetchConversations(), []);
 
   const renderSidebar = () => {
     if (conversations.length === 0) return null;
