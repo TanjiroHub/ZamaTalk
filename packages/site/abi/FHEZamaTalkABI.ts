@@ -120,6 +120,16 @@ export const FHEZamaTalkABI = {
           type: "address",
         },
         {
+          internalType: "string",
+          name: "senderName",
+          type: "string",
+        },
+        {
+          internalType: "string",
+          name: "receiverName",
+          type: "string",
+        },
+        {
           internalType: "uint64",
           name: "createdAt",
           type: "uint64",
@@ -339,7 +349,13 @@ export const FHEZamaTalkABI = {
       type: "function",
     },
     {
-      inputs: [],
+      inputs: [
+        {
+          internalType: "address",
+          name: "acount",
+          type: "address",
+        },
+      ],
       name: "myConversations",
       outputs: [
         {
@@ -358,6 +374,16 @@ export const FHEZamaTalkABI = {
               internalType: "address",
               name: "receiver",
               type: "address",
+            },
+            {
+              internalType: "string",
+              name: "senderName",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "receiverName",
+              type: "string",
             },
             {
               internalType: "uint64",

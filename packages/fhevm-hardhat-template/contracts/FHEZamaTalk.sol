@@ -31,6 +31,8 @@ contract FHEZamaTalk is SepoliaConfig {
         uint256 id;
         address sender;
         address receiver;
+        string senderName;
+        string receiverName;
         uint64 createdAt;
         Status status;
     }
@@ -169,9 +171,12 @@ contract FHEZamaTalk is SepoliaConfig {
             id: convId,
             sender: from,
             receiver: to,
+            senderName: profiles[from].name,
+            receiverName: profiles[to].name,
             createdAt: _now(),
             status: Status.SENT
         });
+
         _conversationLookup[key] = convId;
 
         emit ConversationCreated(convId, from, to);
@@ -180,17 +185,17 @@ contract FHEZamaTalk is SepoliaConfig {
 
     /// @notice Retrieves all conversations where caller is either sender or receiver
     /// @return out Array of Conversation structs
-    function myConversations() external view returns (Conversation[] memory out) {
+    function myConversations(address acount) external view returns (Conversation[] memory out) {
         uint256 count;
         for (uint256 i = 1; i < _nextConversationId; i++) {
-            if (conversations[i].sender == msg.sender || conversations[i].receiver == msg.sender) {
+            if (conversations[i].sender == acount || conversations[i].receiver == acount) {
                 count++;
             }
         }
         out = new Conversation[](count);
         uint256 j;
         for (uint256 i = 1; i < _nextConversationId; i++) {
-            if (conversations[i].sender == msg.sender || conversations[i].receiver == msg.sender) {
+            if (conversations[i].sender == acount || conversations[i].receiver == acount) {
                 out[j++] = conversations[i];
             }
         }
