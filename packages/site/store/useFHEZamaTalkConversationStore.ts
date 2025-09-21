@@ -1,10 +1,11 @@
 import { create } from "zustand";
 import { Message, Conversation } from "@/types";
 import { useFHEZamaTalkStore } from "./useFHEZamaTalkStore";
+import { useFHEZamaTalkLoginStore } from "./useFHEZamaTalkLoginStore";
 
 type ZamaTalkConversationStore = {
-  loading: boolean,
-  setLoading: (value: boolean) => void
+  loading: boolean;
+  setLoading: (value: boolean) => void;
 
   conversations: Conversation[];
   addConversation: (convo: Conversation) => void;
@@ -17,11 +18,11 @@ type ZamaTalkConversationStore = {
   activeMessage: Message[];
   setActiveMessage: (messages: Message[]) => void;
   getActiveMessage: (id: string) => Promise<Message[] | void>;
-  sendMessage: (convoId: string, from: string, to: string, content: string) => Promise<void>;
+  sendMessage: (message: { ciphertexts: Uint8Array[]; proofs: Uint8Array[] }) => Promise<void>;
 };
 
-export const useFHEZamaTalkConversationStore = create<ZamaTalkConversationStore>(
-  (set, get) => ({
+export const useFHEZamaTalkConversationStore =
+  create<ZamaTalkConversationStore>((set, get) => ({
     loading: false,
     setLoading: (value: boolean) => set({ loading: value }),
 
@@ -29,13 +30,14 @@ export const useFHEZamaTalkConversationStore = create<ZamaTalkConversationStore>
     setConversations: (convos) => set({ conversations: convos }),
     addConversation: (convo) => set((s) => ({ conversations: [...s.conversations, convo] })),
     fetchConversations: async () => {
-      const { contractView } = useFHEZamaTalkStore.getState();
-
       try {
-        const conversations = await contractView?.myConversations();
+        const { contractTx } = useFHEZamaTalkStore.getState();
+        const { profile } = useFHEZamaTalkLoginStore.getState();
+
+        const conversations = await contractTx?.myConversations(profile?.wallet);
         set({ conversations: conversations });
 
-        return conversations
+        return conversations;
       } catch (err) {
         console.error("Fetch conversations failed", err);
       }
@@ -52,11 +54,17 @@ export const useFHEZamaTalkConversationStore = create<ZamaTalkConversationStore>
         console.error("Get active messages failed", err);
       }
     },
-    sendMessage: async (convoId, from, to, content) => {
+    sendMessage: async (messageEnc) => {
       try {
+        const { activeConversation } = get()
+        const { profile } = useFHEZamaTalkLoginStore.getState();
+        const { contractTx } = useFHEZamaTalkStore.getState();
+        const to = profile?.wallet?.toLowerCase() === activeConversation?.sender?.toLowerCase() ? activeConversation?.receiver : activeConversation?.sender;
+
+        const tx = await contractTx?.sendMessage(to, messageEnc.ciphertexts, messageEnc.proofs)
+        await tx.wait();
       } catch (err) {
         console.error("Send message failed", err);
       }
     },
-  })
-);
+  }));

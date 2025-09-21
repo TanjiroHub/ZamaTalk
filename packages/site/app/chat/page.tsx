@@ -21,7 +21,7 @@ import { useFHEZamaTalkConversationStore } from "@/store/useFHEZamaTalkConversat
 const Chat: React.FC = () => {
   useFheInstance()
   const { fhevmIsReady } = useFHEZamaTalkStore();
-  const { conversations, activeConversation, fetchConversations } = useFHEZamaTalkConversationStore();
+  const { loading, conversations, activeConversation, fetchConversations } = useFHEZamaTalkConversationStore();
 
   useEffect(() => void fetchConversations(), []);
 
@@ -69,11 +69,11 @@ const Chat: React.FC = () => {
         {renderChatContent()}
       </MainContainer>
 
-      {!fhevmIsReady && (
+      {(!fhevmIsReady || loading) && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
           <ClipLoader
             color="#fef9c3"
-            loading={!fhevmIsReady}
+            loading={!fhevmIsReady || loading}
             size={45}
             aria-label="Loading Spinner"
           />

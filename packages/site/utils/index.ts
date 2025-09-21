@@ -1,3 +1,5 @@
+import { toUtf8Bytes, hexlify } from "ethers";
+
 /**
  * Render a human-readable relative time string from timestamp.
  *
@@ -47,4 +49,37 @@ export function renderTime(timestamp: number | string | bigint): string {
     .getHours()
     .toString()
     .padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`;
+}
+
+/**
+ * Splits a UTF-8 string into an array of 31-byte bigint chunks.
+ * Each chunk is guaranteed to be less than 256 bits, making it suitable for FHE encryption.
+ *
+ * @param {string} str - The input string to convert.
+ * @returns {bigint[]} An array of bigint values representing the string in 31-byte chunks.
+ */
+export function stringToBigInts(str: string): bigint[] {
+  const bytes = toUtf8Bytes(str);
+  const chunks: bigint[] = [];
+
+  for (let i = 0; i < bytes.length; i += 31) {
+    const chunk = bytes.slice(i, i + 31);
+    const hex = hexlify(chunk).substring(2);
+    chunks.push(BigInt("0x" + hex));
+  }
+
+  return chunks;
+}
+
+/**
+ * Decodes a bigint value back into its original UTF-8 string representation.
+ *
+ * @param {bigint} bn - The bigint to convert.
+ * @returns {string} The decoded UTF-8 string.
+ */
+export function bigIntToString(bn: bigint): string {
+  let hex = bn.toString(16);
+  if (hex.length % 2 !== 0) hex = "0" + hex;
+
+  return Buffer.from(hex, "hex").toString("utf8");
 }

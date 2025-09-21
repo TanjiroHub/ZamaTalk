@@ -22,11 +22,11 @@ const ChatBotConversationList: React.FC = () => {
         >
           <Conversation
             key={conversation.id}
-            name={conversation.name}
+            name={conversation.receiverName}
             info={renderTime(conversation.createdAt ?? 0)}
             active={activeConversation?.id === conversation.id}
           >
-            <Avatar name={conversation.name} />
+            <Avatar name={conversation.receiverName ?? ''} />
           </Conversation>
         </div>
       ))}
