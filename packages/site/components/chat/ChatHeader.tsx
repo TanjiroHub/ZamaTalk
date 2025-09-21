@@ -20,9 +20,7 @@ const ChatHeader: React.FC = () => {
 
   const { acount, ethersSigner } = useMetaMaskEthersSigner();
   const { profile, profiles, getProfiles } = useFHEZamaTalkLoginStore();
-  const { addConversation, setActiveConversation } = useFHEZamaTalkConversationStore()
-
-  useEffect(() => void getProfiles(), []);
+  const { activeConversation, conversations, addConversation, setActiveConversation } = useFHEZamaTalkConversationStore()
 
   useEffect(() => {
     const getBalance = async () => {
@@ -32,10 +30,26 @@ const ChatHeader: React.FC = () => {
     getBalance();
   }, [ethersSigner]);
 
+  function isConversationExists(conversations: ConversationType[], wallet: string): boolean {
+    return conversations.some(
+      (c) =>
+        c.sender?.toLowerCase() === wallet.toLowerCase() ||
+        c.receiver?.toLowerCase() === wallet.toLowerCase()
+    );
+  }
+
+  function isDifferentFromActive(activeConversation: ConversationType | null, wallet: string): boolean {
+    return (
+      wallet.toLowerCase() !== activeConversation?.sender?.toLowerCase() &&
+      wallet.toLowerCase() !== activeConversation?.receiver?.toLowerCase()
+    );
+  }
+
+
   function handleAddFriend(userProfile: UserProfile): void {
     const convo: ConversationType = {
       id: '',
-      name: userProfile.name,
+      receiverName: userProfile.name,
       info: userProfile.wallet,
       sender: acount,
       receiver: userProfile.wallet,
@@ -43,18 +57,33 @@ const ChatHeader: React.FC = () => {
       status: 1,
     };
 
-    addConversation(convo);
-    setActiveConversation(convo)
+    if (!isConversationExists(conversations, userProfile.wallet)) {
+      addConversation(convo);
+    }
+
+    if (isDifferentFromActive(activeConversation, userProfile.wallet)) {
+      setActiveConversation(convo);
+    }
+  }
+
+  async function handleSearch(q: string) {
+    await getProfiles();
+    setQuery(q);
   }
 
   const filtered = query
-    ? profiles.filter((u) => u.name.toLowerCase().includes(query.toLowerCase()))
+    ? profiles.filter(
+      (u) =>
+        u.wallet.toLowerCase() !== profile?.wallet.toLowerCase() &&
+        u.name.toLowerCase().includes(query.toLowerCase())
+    )
     : [];
+
 
   return (
     <header className="chat-header h-[90px] zama-bg-gradient flex items-center justify-between px-6 shadow-lg border-b border-yellow-300">
       {/* Logo */}
-      <div className="flex items-center gap-3 mr-[30px]">
+      <div className="flex items-center gap-3 mr-[5px]">
         <Image
           src="/zama-logo.svg"
           alt="Zama Logo"
@@ -74,7 +103,7 @@ const ChatHeader: React.FC = () => {
             value={query}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setTimeout(() => setIsFocused(false), 300)}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => handleSearch(e.target.value)}
             placeholder="Add Friend by Address or Name ..."
             className="w-full h-[45px] pl-11 pr-4 rounded-[10px] border text-base shadow-sm focus:ring-2 focus:ring-yellow-500 outline-none transition"
           />

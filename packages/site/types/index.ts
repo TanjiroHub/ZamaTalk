@@ -1,9 +1,10 @@
 export type Conversation = {
   id: string;
-  name: string;
   info: string;
   sender?: string;
   receiver?: string;
+  senderName?: string;
+  receiverName?: string;
   createdAt?: number;
   status?: number;
 };
