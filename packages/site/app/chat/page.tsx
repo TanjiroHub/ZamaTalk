@@ -53,7 +53,7 @@ const Chat: React.FC = () => {
 
     return (
       <ChatContainer>
-        <ChatMessageHeader name="Jony Nguyen" />
+        <ChatMessageHeader />
         <ChatMessages />
         <ChatMessageInput />
       </ChatContainer>

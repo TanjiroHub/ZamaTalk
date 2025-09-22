@@ -5,12 +5,14 @@ import { FHEZamaTalkABI } from "@/abi/FHEZamaTalkABI";
 import { FHEZamaTalkAddresses } from "@/abi/FHEZamaTalkAddresses";
 
 import { useFhevm } from "../../fhevm-react/useFhevm";
+import { useInMemoryStorage } from "@/hooks/useInMemoryStorage";
 import { useFHEZamaTalkStore } from "@/store/useFHEZamaTalkStore";
 import { useMetaMaskEthersSigner } from "@/hooks/metamask/useMetaMaskEthersSigner";
 
 export const useFheInstance = () => {
-  const { setFhevmIsReady, setFheInstance } = useFHEZamaTalkStore();
+  const { storage } = useInMemoryStorage();
   const { provider, chainId, initialMockChains } = useMetaMaskEthersSigner();
+  const { setFhevmIsReady, setFheInstance, setFhevmDecryptionSignatureStorage } = useFHEZamaTalkStore();
 
   const { instance, status } = useFhevm({
     provider,
@@ -21,6 +23,7 @@ export const useFheInstance = () => {
 
   useEffect(() => {
     if (status === "ready") {
+      setFhevmDecryptionSignatureStorage(storage)
       setFheInstance(instance);
       setFhevmIsReady(true);
     }
@@ -40,17 +43,17 @@ export const useFHEZamaTalkContracts = () => {
 
   useEffect(() => {
     if (chainId && ethersSigner && contractAddress) {
-      const txContract = new ethers.Contract(
+      const contractTx = new ethers.Contract(
         contractAddress,
         FHEZamaTalkABI.abi,
         ethersSigner
       );
-      const viewContract = new ethers.Contract(
+      const contractView = new ethers.Contract(
         contractAddress,
         FHEZamaTalkABI.abi,
         new ethers.JsonRpcProvider(INFURA_RPC_ENDPOINT)
       );
-      setContracts(txContract, viewContract);
+      setContracts(contractTx, contractView);
       setContractIsReady(true);
     }
   }, [chainId, ethersSigner, contractAddress, setContracts]);

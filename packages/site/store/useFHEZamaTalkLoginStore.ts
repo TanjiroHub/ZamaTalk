@@ -42,10 +42,7 @@ export const useFHEZamaTalkLoginStore = create<FHEZamaTalkLoginStore>(
       }
     },
 
-    createProfile: async (
-      name: string,
-      avatarUrl: string = ""
-    ): Promise<void> => {
+    createProfile: async (name: string, avatarUrl: string = ""): Promise<void> => {
       const { contractTx } = useFHEZamaTalkStore.getState();
       set({ loading: true, error: null });
 
@@ -71,13 +68,13 @@ export const useFHEZamaTalkLoginStore = create<FHEZamaTalkLoginStore>(
 
         const result: UserProfile | null = profile
           ? {
-              id: profile.name ?? "",
-              wallet: profile.wallet ?? "",
-              name: profile.name ?? "",
-              avatarUrl: profile.avatarUrl ?? "",
-              createdAt: Number(profile.createdAt ?? 0),
-              active: profile.active ?? false,
-            }
+            id: profile.name ?? "",
+            wallet: profile.wallet ?? "",
+            name: profile.name ?? "",
+            avatarUrl: profile.avatarUrl ?? "",
+            createdAt: Number(profile.createdAt ?? 0),
+            active: profile.active ?? false,
+          }
           : null;
 
         set({ profile: result });
