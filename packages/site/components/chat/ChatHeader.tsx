@@ -48,7 +48,7 @@ const ChatHeader: React.FC = () => {
 
   function handleAddFriend(userProfile: UserProfile): void {
     const convo: ConversationType = {
-      id: '',
+      id: 0,
       receiverName: userProfile.name,
       info: userProfile.wallet,
       sender: acount,
@@ -72,12 +72,18 @@ const ChatHeader: React.FC = () => {
   }
 
   const filtered = query
-    ? profiles.filter(
-      (u) =>
-        u.wallet.toLowerCase() !== profile?.wallet.toLowerCase() &&
-        u.name.toLowerCase().includes(query.toLowerCase())
-    )
+    ? profiles.filter((user) => {
+      const isNotCurrentUser = user.wallet.toLowerCase() !== profile?.wallet.toLowerCase();
+      const nameMatchesQuery = user.name.toLowerCase().includes(query.toLowerCase());
+      const walletMatchesQuery = user.wallet.toLowerCase().includes(query.toLowerCase());
+
+      const matchesQuery = nameMatchesQuery || walletMatchesQuery;
+
+      return isNotCurrentUser && matchesQuery;
+    })
     : [];
+
+
 
 
   return (

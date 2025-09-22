@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Message, Conversation } from "@/types";
+import { Message, EncryptedMessage, Conversation } from "@/types";
 import { useFHEZamaTalkStore } from "./useFHEZamaTalkStore";
 import { useFHEZamaTalkLoginStore } from "./useFHEZamaTalkLoginStore";
 
@@ -15,9 +15,10 @@ type ZamaTalkConversationStore = {
   activeConversation: Conversation | null;
   setActiveConversation: (conversation: Conversation | null) => void;
 
-  activeMessage: Message[];
-  setActiveMessage: (messages: Message[]) => void;
-  getActiveMessage: (id: string) => Promise<Message[] | void>;
+  activeMessages: Message[];
+  setActiveMessages: (messages: Message[]) => void;
+  getActiveMessages: () => Message[];
+  fetchActiveMessages: (id: number) => Promise<EncryptedMessage[] | void>;
   sendMessage: (message: { ciphertexts: Uint8Array[]; proofs: Uint8Array[] }) => Promise<void>;
 };
 
@@ -35,9 +36,10 @@ export const useFHEZamaTalkConversationStore =
         const { profile } = useFHEZamaTalkLoginStore.getState();
 
         const conversations = await contractTx?.myConversations(profile?.wallet);
-        set({ conversations: conversations });
+        const sortedConversations = [...conversations].sort((a: Conversation, b: Conversation) => (Number(b.createdAt ?? 0)) - (Number(a.createdAt ?? 0)));
+        set({ conversations: sortedConversations });
 
-        return conversations;
+        return sortedConversations;
       } catch (err) {
         console.error("Fetch conversations failed", err);
       }
@@ -46,10 +48,15 @@ export const useFHEZamaTalkConversationStore =
     activeConversation: null,
     setActiveConversation: (conversation) => set({ activeConversation: conversation }),
 
-    activeMessage: [],
-    setActiveMessage: (messages) => set({ activeMessage: messages }),
-    getActiveMessage: async (id) => {
+    activeMessages: [],
+    setActiveMessages: (messages) => set({ activeMessages: messages }),
+    getActiveMessages: () => get().activeMessages,
+    fetchActiveMessages: async (conversationId: number) => {
       try {
+        const { contractTx } = useFHEZamaTalkStore.getState();
+        const messages = await contractTx?.getMessages(conversationId)
+
+        return messages
       } catch (err) {
         console.error("Get active messages failed", err);
       }
