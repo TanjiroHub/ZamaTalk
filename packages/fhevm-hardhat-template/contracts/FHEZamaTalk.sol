@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {FHE, euint256, externalEuint256} from "@fhevm/solidity/lib/FHE.sol";
+import {FHE, euint256, euint8, externalEuint256} from "@fhevm/solidity/lib/FHE.sol";
 import {SepoliaConfig} from "@fhevm/solidity/config/ZamaConfig.sol";
 
 /// @title FHEZamaTalk
@@ -46,6 +46,7 @@ contract FHEZamaTalk is SepoliaConfig {
         uint64 createdAt; // Timestamp of message creation
         Status status; // Status of the message (SENT, DELIVERED, READ)
         euint256[] content; // Encrypted message chunks
+        euint256 reaction;
     }
 
     // ===== STORAGE =====
@@ -67,6 +68,7 @@ contract FHEZamaTalk is SepoliaConfig {
     event ProfileUpdated(address indexed user, string field);
     event ConversationCreated(uint256 conversationId, address sender, address receiver);
     event MessageSent(uint256 messageId, uint256 conversationId, address from, address to);
+    event ReactionChanged(uint256 indexed msgId, address indexed by);
 
     // ===== INTERNAL UTILS =====
 
@@ -208,12 +210,21 @@ contract FHEZamaTalk is SepoliaConfig {
     /// @param to Recipient address
     /// @param contentExt Encrypted message chunks (external form)
     /// @param proofs Cryptographic proofs for the encrypted chunks
-    function sendMessage(address to, externalEuint256[] calldata contentExt, bytes[] calldata proofs) external {
+    /// @param reactionExt Encrypted reaction (external form)
+    /// @param reactionProof Cryptographic proof for the encrypted reaction
+    function sendMessage(
+        address to,
+        externalEuint256[] calldata contentExt,
+        bytes[] calldata proofs,
+        externalEuint256 reactionExt,
+        bytes calldata reactionProof
+    ) external {
         require(to != address(0), "Invalid recipient");
         require(contentExt.length == proofs.length, "Mismatched chunks");
 
         uint256 convId = _getOrCreateConversation(msg.sender, to);
 
+        // decode message chunks
         euint256[] memory contentCT = new euint256[](contentExt.length);
         for (uint256 i = 0; i < contentExt.length; i++) {
             contentCT[i] = FHE.fromExternal(contentExt[i], proofs[i]);
@@ -221,6 +232,12 @@ contract FHEZamaTalk is SepoliaConfig {
             FHE.allow(contentCT[i], msg.sender);
             FHE.allow(contentCT[i], to);
         }
+
+        // decode reaction ciphertext
+        euint256 reactionCT = FHE.fromExternal(reactionExt, reactionProof);
+        FHE.allowThis(reactionCT);
+        FHE.allow(reactionCT, msg.sender);
+        FHE.allow(reactionCT, to);
 
         uint256 msgId = _nextMessageId++;
         messages[msgId] = Message({
@@ -230,11 +247,34 @@ contract FHEZamaTalk is SepoliaConfig {
             receiver: to,
             createdAt: _now(),
             status: Status.SENT,
-            content: contentCT
+            content: contentCT,
+            reaction: reactionCT
         });
+
         _conversationIndex[convId].push(msgId);
 
         emit MessageSent(msgId, convId, msg.sender, to);
+    }
+
+    /// @notice Change the reaction of an existing message
+    /// @param msgId ID of the message to update
+    /// @param reactionExt New encrypted reaction (external form)
+    /// @param proof Cryptographic proof for the encrypted reaction
+    function changeReaction(uint256 msgId, externalEuint256 reactionExt, bytes calldata proof) external {
+        Message storage m = messages[msgId];
+        require(m.id != 0, "Message does not exist");
+        require(msg.sender == m.sender || msg.sender == m.receiver, "Not authorized to change reaction");
+
+        // decode new reaction ciphertext
+        euint256 newReaction = FHE.fromExternal(reactionExt, proof);
+        FHE.allowThis(newReaction);
+        FHE.allow(newReaction, m.sender);
+        FHE.allow(newReaction, m.receiver);
+
+        // update reaction
+        m.reaction = newReaction;
+
+        emit ReactionChanged(msgId, msg.sender);
     }
 
     /// @notice Retrieves all messages in a conversation without modifying their status
@@ -249,5 +289,13 @@ contract FHEZamaTalk is SepoliaConfig {
             Message storage m = messages[ids[i]];
             out[i] = m;
         }
+    }
+
+    /// @notice Get a single message by its ID
+    /// @param msgId ID of the message
+    /// @return The Message struct
+    function getMessage(uint256 msgId) external view returns (Message memory) {
+        require(messages[msgId].id != 0, "Message does not exist");
+        return messages[msgId];
     }
 }
