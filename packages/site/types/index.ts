@@ -12,11 +12,12 @@ export type Conversation = {
 export type Message = {
   id: number;
   content: string;
-  createdAt?: number;
-  sender?: string;
-  direction?: "incoming" | "outgoing";
+  createdAt: number;
+  sender: string;
+  direction: "incoming" | "outgoing";
   position?: "single" | "first" | "middle" | "last";
   avatar?: string;
+  reaction: ReactionType;
 };
 
 export type EncryptedMessage = {
@@ -24,6 +25,7 @@ export type EncryptedMessage = {
   createdAt: bigint;
   sender: string;
   content: Uint8Array[];
+  reaction: Uint8Array;
 };
 
 export type UserProfile = {
@@ -33,4 +35,24 @@ export type UserProfile = {
   avatarUrl: string;
   createdAt: number;
   active: boolean;
+};
+
+export enum ReactionType {
+  NONE = "none",
+  LIKE = "like",
+  LOVE = "love",
+  HAHA = "haha",
+  WOW = "wow",
+  SAD = "sad",
+  ANGRY = "angry",
+}
+
+export const ReactionMap: Record<ReactionType, string> = {
+  [ReactionType.NONE]: "",
+  [ReactionType.LIKE]: "👍",
+  [ReactionType.LOVE]: "❤️",
+  [ReactionType.HAHA]: "😂",
+  [ReactionType.WOW]: "😮",
+  [ReactionType.SAD]: "😢",
+  [ReactionType.ANGRY]: "😡",
 };

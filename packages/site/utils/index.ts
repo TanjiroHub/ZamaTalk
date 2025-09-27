@@ -46,17 +46,29 @@ export function renderTime(timestamp: number | string | bigint): string {
   return `${d.getDate().toString().padStart(2, "0")}/${(d.getMonth() + 1)
     .toString()
     .padStart(2, "0")}/${d.getFullYear()} ${d
-    .getHours()
-    .toString()
-    .padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`;
+      .getHours()
+      .toString()
+      .padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`;
 }
 
 /**
- * Splits a UTF-8 string into an array of 31-byte bigint chunks.
- * Each chunk is guaranteed to be less than 256 bits, making it suitable for FHE encryption.
+ * Converts a string (or string chunk) into a bigint.
  *
- * @param {string} str - The input string to convert.
- * @returns {bigint[]} An array of bigint values representing the string in 31-byte chunks.
+ * @param {string} str - Input string.
+ * @returns {bigint} - BigInt representation of the string.
+ */
+export function stringToBigInt(str: string): bigint {
+  const bytes = toUtf8Bytes(str);
+  const hex = hexlify(bytes).substring(2);
+
+  return BigInt("0x" + hex);
+}
+
+/**
+ * Splits a string into 31-byte chunks and converts each chunk into a bigint.
+ *
+ * @param {string} str - Input string.
+ * @returns {bigint[]} - Array of BigInts representing the chunks.
  */
 export function stringToBigInts(str: string): bigint[] {
   const bytes = toUtf8Bytes(str);
@@ -64,8 +76,7 @@ export function stringToBigInts(str: string): bigint[] {
 
   for (let i = 0; i < bytes.length; i += 31) {
     const chunk = bytes.slice(i, i + 31);
-    const hex = hexlify(chunk).substring(2);
-    chunks.push(BigInt("0x" + hex));
+    chunks.push(stringToBigInt(Buffer.from(chunk).toString()));
   }
 
   return chunks;
