@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
+import { useRouter } from "next/navigation";
 
 import Image from "next/image";
 import Avatar from "@/components/shared/Avatar";
@@ -18,7 +19,8 @@ const ChatHeader: React.FC = () => {
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [balance, setBalance] = useState<string>("");
 
-  const { acount, ethersSigner } = useMetaMaskEthersSigner();
+  const { push } = useRouter();
+  const { acount, ethersSigner, disconnect } = useMetaMaskEthersSigner();
   const { profile, profiles, getProfiles } = useFHEZamaTalkLoginStore();
   const { activeConversation, conversations, addConversation, setActiveConversation } = useFHEZamaTalkConversationStore()
 
@@ -71,6 +73,14 @@ const ChatHeader: React.FC = () => {
     setQuery(q);
   }
 
+  const onLogout = (): void => {
+    disconnect();
+  };
+
+  useEffect(() => {
+    if (!acount) push("/");
+  }, [acount]);
+
   const filtered = query
     ? profiles.filter((user) => {
       const isNotCurrentUser = user.wallet.toLowerCase() !== profile?.wallet.toLowerCase();
@@ -82,9 +92,6 @@ const ChatHeader: React.FC = () => {
       return isNotCurrentUser && matchesQuery;
     })
     : [];
-
-
-
 
   return (
     <header className="chat-header h-[90px] zama-bg-gradient flex items-center justify-between px-6 shadow-lg border-b border-yellow-300">
@@ -176,7 +183,7 @@ const ChatHeader: React.FC = () => {
               </div>
             </div>
 
-            <button className="mt-6 w-full px-4 py-2 rounded-[8px] bg-yellow-300 hover:[background-color:#ffd200] text-gray-600 font-semibold transition cursor-pointer">
+            <button className="mt-6 w-full px-4 py-2 rounded-[8px] bg-yellow-300 hover:[background-color:#ffd200] text-gray-600 font-semibold transition cursor-pointer" onClick={onLogout}>
               Logout
             </button>
           </div>
