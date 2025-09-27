@@ -95,6 +95,48 @@ export const FHEZamaTalkABI = {
       type: "event",
     },
     {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: "uint256",
+          name: "msgId",
+          type: "uint256",
+        },
+        {
+          indexed: true,
+          internalType: "address",
+          name: "by",
+          type: "address",
+        },
+      ],
+      name: "ReactionChanged",
+      type: "event",
+    },
+    {
+      inputs: [
+        {
+          internalType: "uint256",
+          name: "msgId",
+          type: "uint256",
+        },
+        {
+          internalType: "externalEuint256",
+          name: "reactionExt",
+          type: "bytes32",
+        },
+        {
+          internalType: "bytes",
+          name: "proof",
+          type: "bytes",
+        },
+      ],
+      name: "changeReaction",
+      outputs: [],
+      stateMutability: "nonpayable",
+      type: "function",
+    },
+    {
       inputs: [
         {
           internalType: "uint256",
@@ -172,6 +214,67 @@ export const FHEZamaTalkABI = {
       inputs: [
         {
           internalType: "uint256",
+          name: "msgId",
+          type: "uint256",
+        },
+      ],
+      name: "getMessage",
+      outputs: [
+        {
+          components: [
+            {
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "conversationId",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "sender",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "receiver",
+              type: "address",
+            },
+            {
+              internalType: "uint64",
+              name: "createdAt",
+              type: "uint64",
+            },
+            {
+              internalType: "enum FHEZamaTalk.Status",
+              name: "status",
+              type: "uint8",
+            },
+            {
+              internalType: "euint256[]",
+              name: "content",
+              type: "bytes32[]",
+            },
+            {
+              internalType: "euint256",
+              name: "reaction",
+              type: "bytes32",
+            },
+          ],
+          internalType: "struct FHEZamaTalk.Message",
+          name: "",
+          type: "tuple",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
+          internalType: "uint256",
           name: "conversationId",
           type: "uint256",
         },
@@ -214,6 +317,11 @@ export const FHEZamaTalkABI = {
               internalType: "euint256[]",
               name: "content",
               type: "bytes32[]",
+            },
+            {
+              internalType: "euint256",
+              name: "reaction",
+              type: "bytes32",
             },
           ],
           internalType: "struct FHEZamaTalk.Message[]",
@@ -343,6 +451,11 @@ export const FHEZamaTalkABI = {
           internalType: "enum FHEZamaTalk.Status",
           name: "status",
           type: "uint8",
+        },
+        {
+          internalType: "euint256",
+          name: "reaction",
+          type: "bytes32",
         },
       ],
       stateMutability: "view",
@@ -510,6 +623,16 @@ export const FHEZamaTalkABI = {
           internalType: "bytes[]",
           name: "proofs",
           type: "bytes[]",
+        },
+        {
+          internalType: "externalEuint256",
+          name: "reactionExt",
+          type: "bytes32",
+        },
+        {
+          internalType: "bytes",
+          name: "reactionProof",
+          type: "bytes",
         },
       ],
       name: "sendMessage",

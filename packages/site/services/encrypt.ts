@@ -1,5 +1,5 @@
 import { FhevmInstance } from "../../fhevm-react/fhevmTypes";
-import { stringToBigInts } from "@/utils";
+import { stringToBigInts, stringToBigInt } from "@/utils";
 import { ethers } from "ethers";
 
 /**
@@ -57,4 +57,34 @@ export async function encryptChunksForContract(
   }
 
   return { ciphertexts, proofs };
+}
+
+/**
+ * Encrypts a string into a ciphertext and proof,
+ * bound to a target FHE-enabled smart contract and signer.
+ *
+ * @param {string} contractAddress - Target contract address.
+ * @param {FhevmInstance} fheInstance - The FHE VM instance used for encryption.
+ * @param {ethers.Signer} signer - The signer, used to bind encryption to an address.
+ * @param {string} value - The string value to encrypt.
+ * @returns {Promise<{ciphertext: Uint8Array; proof: Uint8Array}>}
+ */
+export async function encryptStringForContract(
+  contractAddress: string,
+  fheInstance: FhevmInstance,
+  signer: ethers.Signer,
+  value: string
+): Promise<{ ciphertext: Uint8Array; proof: Uint8Array; }> {
+  const signerAddress = await signer.getAddress();
+  const bigintValue = stringToBigInt(value);
+
+  const input = fheInstance.createEncryptedInput(contractAddress, signerAddress);
+  input.add256(bigintValue);
+
+  const { handles, inputProof } = await input.encrypt();
+
+  return {
+    ciphertext: handles?.[0],
+    proof: inputProof,
+  };
 }

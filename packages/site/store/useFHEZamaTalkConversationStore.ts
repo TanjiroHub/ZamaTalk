@@ -19,7 +19,10 @@ type ZamaTalkConversationStore = {
   setActiveMessages: (messages: Message[]) => void;
   getActiveMessages: () => Message[];
   fetchActiveMessages: (id: number) => Promise<EncryptedMessage[] | void>;
-  sendMessage: (message: { ciphertexts: Uint8Array[]; proofs: Uint8Array[] }) => Promise<void>;
+  sendMessage: (messages: { ciphertexts: Uint8Array[]; proofs: Uint8Array[] }, reaction: { ciphertext: Uint8Array; proof: Uint8Array }) => Promise<void>;
+  fetchMessage: (id: number) => Promise<EncryptedMessage | void>;
+
+  reactionMessage: (messageId: number, reaction: { ciphertext: Uint8Array; proof: Uint8Array }) => Promise<boolean>;
 };
 
 export const useFHEZamaTalkConversationStore =
@@ -61,17 +64,37 @@ export const useFHEZamaTalkConversationStore =
         console.error("Get active messages failed", err);
       }
     },
-    sendMessage: async (messageEnc) => {
+    sendMessage: async (messageEnc, reactionEnc) => {
       try {
         const { activeConversation } = get()
         const { profile } = useFHEZamaTalkLoginStore.getState();
         const { contractTx } = useFHEZamaTalkStore.getState();
         const to = profile?.wallet?.toLowerCase() === activeConversation?.sender?.toLowerCase() ? activeConversation?.receiver : activeConversation?.sender;
 
-        const tx = await contractTx?.sendMessage(to, messageEnc.ciphertexts, messageEnc.proofs)
+        const tx = await contractTx?.sendMessage(to, messageEnc.ciphertexts, messageEnc.proofs, reactionEnc.ciphertext, reactionEnc.proof)
         await tx.wait();
       } catch (err) {
         console.error("Send message failed", err);
       }
     },
+    fetchMessage: async (messageId) => {
+      try {
+        const { contractTx } = useFHEZamaTalkStore.getState();
+        const message = await contractTx?.getMessage(messageId)
+
+        return message
+      } catch (err) {
+        console.error("Fetch message failed", err);
+      }
+    },
+    reactionMessage: async (messageId, reactionEnc): Promise<boolean> => {
+      try {
+        const { contractTx } = useFHEZamaTalkStore.getState();
+        await contractTx?.changeReaction(messageId, reactionEnc.ciphertext, reactionEnc.proof)
+        return true
+      } catch (err) {
+        console.error("Fetch message failed", err);
+        return false
+      }
+    }
   }));

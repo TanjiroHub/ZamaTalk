@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { MessageInput } from "@chatscope/chat-ui-kit-react";
-import { encryptChunksForContract } from "@/services";
+import { ReactionType } from "@/types";
+import { encryptChunksForContract, encryptStringForContract } from "@/services";
 import { useFHEZamaTalkStore } from "@/store/useFHEZamaTalkStore";
 import { useMetaMaskEthersSigner } from "@/hooks/metamask/useMetaMaskEthersSigner";
 import { useFHEZamaTalkConversationStore } from "@/store/useFHEZamaTalkConversationStore";
@@ -8,7 +9,7 @@ import { useFHEZamaTalkConversationStore } from "@/store/useFHEZamaTalkConversat
 const ChatMessageInput: React.FC = () => {
   const [value, setValue] = useState("");
 
-  const { ethersSigner } = useMetaMaskEthersSigner();
+  const { ethersSigner, acount } = useMetaMaskEthersSigner();
   const { fheInstance, contractAddress } = useFHEZamaTalkStore();
   const { activeMessages, setLoading, sendMessage, setActiveMessages, fetchConversations } = useFHEZamaTalkConversationStore();
 
@@ -20,14 +21,17 @@ const ChatMessageInput: React.FC = () => {
     if (contractAddress && fheInstance && ethersSigner) {
       setValue('');
       setLoading(true);
-      const messsaheEnc = await encryptChunksForContract(contractAddress, fheInstance, ethersSigner, message);
-      await sendMessage(messsaheEnc);
+      const messsagesEnc = await encryptChunksForContract(contractAddress, fheInstance, ethersSigner, message);
+      const reactionEnc = await encryptStringForContract(contractAddress, fheInstance, ethersSigner, String(ReactionType.NONE));
+      await sendMessage(messsagesEnc, reactionEnc);
       fetchConversations();
       setActiveMessages([...activeMessages, {
         id: 0,
+        sender: '',
         content: message,
         createdAt: Date.now(),
         direction: "outgoing",
+        reaction: ReactionType.NONE,
       }]);
       setLoading(false);
     }
