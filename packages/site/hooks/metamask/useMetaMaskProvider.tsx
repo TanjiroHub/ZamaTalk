@@ -112,8 +112,6 @@ function useMetaMaskInternal(): UseMetaMaskState {
   };
 
   const disconnect = useCallback(() => {
-    _setCurrentProvider(undefined);
-    _setChainId(undefined);
     _setAccounts(undefined);
   }, []);
 

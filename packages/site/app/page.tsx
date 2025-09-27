@@ -13,6 +13,7 @@ import { useFHEZamaTalkContracts } from "@/hooks/useFHEZamaTalk";
 import { useFHEZamaTalkStore } from "@/store/useFHEZamaTalkStore";
 import { useFHEZamaTalkLoginStore } from "@/store/useFHEZamaTalkLoginStore";
 import { useMetaMaskEthersSigner } from "@/hooks/metamask/useMetaMaskEthersSigner";
+import { useFHEZamaTalkConversationStore } from "@/store/useFHEZamaTalkConversationStore";
 
 const Login: React.FC = () => {
   useFHEZamaTalkContracts();
@@ -20,6 +21,7 @@ const Login: React.FC = () => {
   const [name, setName] = useState("");
 
   const { contractIsReady } = useFHEZamaTalkStore();
+  const { setActiveMessages, setActiveConversation } = useFHEZamaTalkConversationStore();
   const { acount, isConnected, connect, switchToSepoliaNetwork } = useMetaMaskEthersSigner();
   const { loading, error, profile, nameExists, getProfile, createProfile } = useFHEZamaTalkLoginStore();
 
@@ -46,6 +48,12 @@ const Login: React.FC = () => {
 
     fetchProfile();
   }, [contractIsReady]);
+
+  useEffect(() => {
+    setActiveMessages([])
+    setActiveConversation(null)
+  }, []);
+  
 
   return (
     <div className="login zama-bg h-screen flex items-center justify-center bg-white">
