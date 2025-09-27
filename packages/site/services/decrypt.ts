@@ -34,7 +34,7 @@ export async function decryptHandles(
   for (const item of handles) {
     try {
       const decrypted = await fheInstance.userDecrypt(
-        handles,
+        [item],
         sig.privateKey,
         sig.publicKey,
         sig.signature,

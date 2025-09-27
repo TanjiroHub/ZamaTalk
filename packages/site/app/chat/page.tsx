@@ -11,7 +11,6 @@ import ChatHeader from "@/components/chat/ChatHeader";
 import ChatMessages from "@/components/chat/ChatMessages";
 import ChatMessageInput from "@/components/chat/ChatMessageInput";
 import ChatMessageHeader from "@/components/chat/ChatMessageHeader";
-import ChatSidebarUserHeader from "@/components/chat/ChatSidebarUserHeader";
 import ChatBotConversationList from "@/components/chat/ChatBotConversationList";
 
 import { useFheInstance } from "@/hooks/useFHEZamaTalk";
@@ -30,7 +29,6 @@ const Chat: React.FC = () => {
 
     return (
       <Sidebar position="left">
-        <ChatSidebarUserHeader />
         <ChatBotConversationList />
       </Sidebar>
     );

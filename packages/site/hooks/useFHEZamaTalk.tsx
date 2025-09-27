@@ -12,7 +12,7 @@ import { useMetaMaskEthersSigner } from "@/hooks/metamask/useMetaMaskEthersSigne
 export const useFheInstance = () => {
   const { storage } = useInMemoryStorage();
   const { provider, chainId, initialMockChains } = useMetaMaskEthersSigner();
-  const { setFhevmIsReady, setFheInstance, setFhevmDecryptionSignatureStorage } = useFHEZamaTalkStore();
+  const { fhevmIsReady ,setFhevmIsReady, setFheInstance, setFhevmDecryptionSignatureStorage } = useFHEZamaTalkStore();
 
   const { instance, status } = useFhevm({
     provider,
@@ -22,7 +22,7 @@ export const useFheInstance = () => {
   });
 
   useEffect(() => {
-    if (status === "ready") {
+    if (status === "ready" && !fhevmIsReady) {
       setFhevmDecryptionSignatureStorage(storage)
       setFheInstance(instance);
       setFhevmIsReady(true);
