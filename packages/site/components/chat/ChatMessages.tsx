@@ -160,7 +160,7 @@ const ChatMessages: React.FC = () => {
               <div className="reactions">
                 <FacebookSelector iconSize={30} onSelect={(reaction) => handleReaction(index, msg.id, reaction as ReactionType)} />
               </div>
-              {msg.reaction && <div className="reaction">{ReactionMap[msg.reaction]}</div>}
+              {ReactionMap[msg.reaction] && <div className="reaction">{ReactionMap[msg.reaction]}</div>}
             </Message.Header>
 
             {isLastInGroup && (

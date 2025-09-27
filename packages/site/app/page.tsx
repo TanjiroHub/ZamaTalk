@@ -83,7 +83,7 @@ const Login: React.FC = () => {
         )}
 
         <Button
-          disabled={!name.trim()}
+          disabled={Boolean(!name.trim() && acount)}
           className="w-full h-11 text-white font-medium rounded mt-4 disabled:opacity-80 disabled:cursor-not-allowed"
           onClick={acount ? onLogin : onConnect}
         >
