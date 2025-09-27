@@ -32,6 +32,7 @@ export declare namespace FHEZamaTalk {
     createdAt: BigNumberish;
     status: BigNumberish;
     content: BytesLike[];
+    reaction: BytesLike;
   };
 
   export type MessageStructOutput = [
@@ -41,7 +42,8 @@ export declare namespace FHEZamaTalk {
     receiver: string,
     createdAt: bigint,
     status: bigint,
-    content: string[]
+    content: string[],
+    reaction: string
   ] & {
     id: bigint;
     conversationId: bigint;
@@ -50,10 +52,12 @@ export declare namespace FHEZamaTalk {
     createdAt: bigint;
     status: bigint;
     content: string[];
+    reaction: string;
   };
 
   export type UserProfileStruct = {
     name: string;
+    wallet: AddressLike;
     avatarUrl: string;
     createdAt: BigNumberish;
     active: boolean;
@@ -61,15 +65,24 @@ export declare namespace FHEZamaTalk {
 
   export type UserProfileStructOutput = [
     name: string,
+    wallet: string,
     avatarUrl: string,
     createdAt: bigint,
     active: boolean
-  ] & { name: string; avatarUrl: string; createdAt: bigint; active: boolean };
+  ] & {
+    name: string;
+    wallet: string;
+    avatarUrl: string;
+    createdAt: bigint;
+    active: boolean;
+  };
 
   export type ConversationStruct = {
     id: BigNumberish;
     sender: AddressLike;
     receiver: AddressLike;
+    senderName: string;
+    receiverName: string;
     createdAt: BigNumberish;
     status: BigNumberish;
   };
@@ -78,12 +91,16 @@ export declare namespace FHEZamaTalk {
     id: bigint,
     sender: string,
     receiver: string,
+    senderName: string,
+    receiverName: string,
     createdAt: bigint,
     status: bigint
   ] & {
     id: bigint;
     sender: string;
     receiver: string;
+    senderName: string;
+    receiverName: string;
     createdAt: bigint;
     status: bigint;
   };
@@ -92,11 +109,14 @@ export declare namespace FHEZamaTalk {
 export interface FHEZamaTalkInterface extends Interface {
   getFunction(
     nameOrSignature:
+      | "changeReaction"
       | "conversations"
       | "createProfile"
       | "deactivateProfile"
+      | "getMessage"
       | "getMessages"
       | "getProfile"
+      | "getProfiles"
       | "messages"
       | "myConversations"
       | "nameExists"
@@ -113,8 +133,13 @@ export interface FHEZamaTalkInterface extends Interface {
       | "MessageSent"
       | "ProfileCreated"
       | "ProfileUpdated"
+      | "ReactionChanged"
   ): EventFragment;
 
+  encodeFunctionData(
+    functionFragment: "changeReaction",
+    values: [BigNumberish, BytesLike, BytesLike]
+  ): string;
   encodeFunctionData(
     functionFragment: "conversations",
     values: [BigNumberish]
@@ -128,6 +153,10 @@ export interface FHEZamaTalkInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "getMessage",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getMessages",
     values: [BigNumberish]
   ): string;
@@ -136,12 +165,16 @@ export interface FHEZamaTalkInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "getProfiles",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "messages",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "myConversations",
-    values?: undefined
+    values: [AddressLike]
   ): string;
   encodeFunctionData(functionFragment: "nameExists", values: [string]): string;
   encodeFunctionData(
@@ -155,13 +188,17 @@ export interface FHEZamaTalkInterface extends Interface {
   encodeFunctionData(functionFragment: "resolveName", values: [string]): string;
   encodeFunctionData(
     functionFragment: "sendMessage",
-    values: [AddressLike, BytesLike[], BytesLike[]]
+    values: [AddressLike, BytesLike[], BytesLike[], BytesLike, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "updateAvatar",
     values: [string]
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "changeReaction",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "conversations",
     data: BytesLike
@@ -174,11 +211,16 @@ export interface FHEZamaTalkInterface extends Interface {
     functionFragment: "deactivateProfile",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "getMessage", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getMessages",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "getProfile", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getProfiles",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "messages", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "myConversations",
@@ -274,6 +316,19 @@ export namespace ProfileUpdatedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
+export namespace ReactionChangedEvent {
+  export type InputTuple = [msgId: BigNumberish, by: AddressLike];
+  export type OutputTuple = [msgId: bigint, by: string];
+  export interface OutputObject {
+    msgId: bigint;
+    by: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
 export interface FHEZamaTalk extends BaseContract {
   connect(runner?: ContractRunner | null): FHEZamaTalk;
   waitForDeployment(): Promise<this>;
@@ -317,13 +372,21 @@ export interface FHEZamaTalk extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
+  changeReaction: TypedContractMethod<
+    [msgId: BigNumberish, reactionExt: BytesLike, proof: BytesLike],
+    [void],
+    "nonpayable"
+  >;
+
   conversations: TypedContractMethod<
     [arg0: BigNumberish],
     [
-      [bigint, string, string, bigint, bigint] & {
+      [bigint, string, string, string, string, bigint, bigint] & {
         id: bigint;
         sender: string;
         receiver: string;
+        senderName: string;
+        receiverName: string;
         createdAt: bigint;
         status: bigint;
       }
@@ -339,6 +402,12 @@ export interface FHEZamaTalk extends BaseContract {
 
   deactivateProfile: TypedContractMethod<[], [void], "nonpayable">;
 
+  getMessage: TypedContractMethod<
+    [msgId: BigNumberish],
+    [FHEZamaTalk.MessageStructOutput],
+    "view"
+  >;
+
   getMessages: TypedContractMethod<
     [conversationId: BigNumberish],
     [FHEZamaTalk.MessageStructOutput[]],
@@ -351,23 +420,30 @@ export interface FHEZamaTalk extends BaseContract {
     "view"
   >;
 
+  getProfiles: TypedContractMethod<
+    [],
+    [FHEZamaTalk.UserProfileStructOutput[]],
+    "view"
+  >;
+
   messages: TypedContractMethod<
     [arg0: BigNumberish],
     [
-      [bigint, bigint, string, string, bigint, bigint] & {
+      [bigint, bigint, string, string, bigint, bigint, string] & {
         id: bigint;
         conversationId: bigint;
         sender: string;
         receiver: string;
         createdAt: bigint;
         status: bigint;
+        reaction: string;
       }
     ],
     "view"
   >;
 
   myConversations: TypedContractMethod<
-    [],
+    [acount: AddressLike],
     [FHEZamaTalk.ConversationStructOutput[]],
     "view"
   >;
@@ -377,8 +453,9 @@ export interface FHEZamaTalk extends BaseContract {
   profiles: TypedContractMethod<
     [arg0: AddressLike],
     [
-      [string, string, bigint, boolean] & {
+      [string, string, string, bigint, boolean] & {
         name: string;
+        wallet: string;
         avatarUrl: string;
         createdAt: bigint;
         active: boolean;
@@ -392,7 +469,13 @@ export interface FHEZamaTalk extends BaseContract {
   resolveName: TypedContractMethod<[name: string], [string], "view">;
 
   sendMessage: TypedContractMethod<
-    [to: AddressLike, contentExt: BytesLike[], proofs: BytesLike[]],
+    [
+      to: AddressLike,
+      contentExt: BytesLike[],
+      proofs: BytesLike[],
+      reactionExt: BytesLike,
+      reactionProof: BytesLike
+    ],
     [void],
     "nonpayable"
   >;
@@ -404,14 +487,23 @@ export interface FHEZamaTalk extends BaseContract {
   ): T;
 
   getFunction(
+    nameOrSignature: "changeReaction"
+  ): TypedContractMethod<
+    [msgId: BigNumberish, reactionExt: BytesLike, proof: BytesLike],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
     nameOrSignature: "conversations"
   ): TypedContractMethod<
     [arg0: BigNumberish],
     [
-      [bigint, string, string, bigint, bigint] & {
+      [bigint, string, string, string, string, bigint, bigint] & {
         id: bigint;
         sender: string;
         receiver: string;
+        senderName: string;
+        receiverName: string;
         createdAt: bigint;
         status: bigint;
       }
@@ -429,6 +521,13 @@ export interface FHEZamaTalk extends BaseContract {
     nameOrSignature: "deactivateProfile"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
+    nameOrSignature: "getMessage"
+  ): TypedContractMethod<
+    [msgId: BigNumberish],
+    [FHEZamaTalk.MessageStructOutput],
+    "view"
+  >;
+  getFunction(
     nameOrSignature: "getMessages"
   ): TypedContractMethod<
     [conversationId: BigNumberish],
@@ -439,24 +538,32 @@ export interface FHEZamaTalk extends BaseContract {
     nameOrSignature: "getProfile"
   ): TypedContractMethod<[], [FHEZamaTalk.UserProfileStructOutput], "view">;
   getFunction(
+    nameOrSignature: "getProfiles"
+  ): TypedContractMethod<[], [FHEZamaTalk.UserProfileStructOutput[]], "view">;
+  getFunction(
     nameOrSignature: "messages"
   ): TypedContractMethod<
     [arg0: BigNumberish],
     [
-      [bigint, bigint, string, string, bigint, bigint] & {
+      [bigint, bigint, string, string, bigint, bigint, string] & {
         id: bigint;
         conversationId: bigint;
         sender: string;
         receiver: string;
         createdAt: bigint;
         status: bigint;
+        reaction: string;
       }
     ],
     "view"
   >;
   getFunction(
     nameOrSignature: "myConversations"
-  ): TypedContractMethod<[], [FHEZamaTalk.ConversationStructOutput[]], "view">;
+  ): TypedContractMethod<
+    [acount: AddressLike],
+    [FHEZamaTalk.ConversationStructOutput[]],
+    "view"
+  >;
   getFunction(
     nameOrSignature: "nameExists"
   ): TypedContractMethod<[name: string], [boolean], "view">;
@@ -465,8 +572,9 @@ export interface FHEZamaTalk extends BaseContract {
   ): TypedContractMethod<
     [arg0: AddressLike],
     [
-      [string, string, bigint, boolean] & {
+      [string, string, string, bigint, boolean] & {
         name: string;
+        wallet: string;
         avatarUrl: string;
         createdAt: bigint;
         active: boolean;
@@ -483,7 +591,13 @@ export interface FHEZamaTalk extends BaseContract {
   getFunction(
     nameOrSignature: "sendMessage"
   ): TypedContractMethod<
-    [to: AddressLike, contentExt: BytesLike[], proofs: BytesLike[]],
+    [
+      to: AddressLike,
+      contentExt: BytesLike[],
+      proofs: BytesLike[],
+      reactionExt: BytesLike,
+      reactionProof: BytesLike
+    ],
     [void],
     "nonpayable"
   >;
@@ -518,6 +632,13 @@ export interface FHEZamaTalk extends BaseContract {
     ProfileUpdatedEvent.InputTuple,
     ProfileUpdatedEvent.OutputTuple,
     ProfileUpdatedEvent.OutputObject
+  >;
+  getEvent(
+    key: "ReactionChanged"
+  ): TypedContractEvent<
+    ReactionChangedEvent.InputTuple,
+    ReactionChangedEvent.OutputTuple,
+    ReactionChangedEvent.OutputObject
   >;
 
   filters: {
@@ -563,6 +684,17 @@ export interface FHEZamaTalk extends BaseContract {
       ProfileUpdatedEvent.InputTuple,
       ProfileUpdatedEvent.OutputTuple,
       ProfileUpdatedEvent.OutputObject
+    >;
+
+    "ReactionChanged(uint256,address)": TypedContractEvent<
+      ReactionChangedEvent.InputTuple,
+      ReactionChangedEvent.OutputTuple,
+      ReactionChangedEvent.OutputObject
+    >;
+    ReactionChanged: TypedContractEvent<
+      ReactionChangedEvent.InputTuple,
+      ReactionChangedEvent.OutputTuple,
+      ReactionChangedEvent.OutputObject
     >;
   };
 }

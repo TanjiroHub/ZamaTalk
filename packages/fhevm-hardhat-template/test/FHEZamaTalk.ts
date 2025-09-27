@@ -77,6 +77,13 @@ describe("FHEZamaTalk", function () {
     return [handles, proofList];
   }
 
+  // Encrypt reaction value (uint8 encoded as bigint)
+  async function encryptReaction(signer: Signer, value: bigint) {
+    const encInput = fhevm.createEncryptedInput(contractAddress, await signer.getAddress());
+    encInput.add256(value);
+    return encInput.encrypt();
+  }
+
   function bigIntToString(bn: bigint): string {
     let hex = bn.toString(16);
     if (hex.length % 2 !== 0) hex = "0" + hex;
@@ -133,9 +140,17 @@ describe("FHEZamaTalk", function () {
   describe("Messaging (encrypt/decrypt) + conversation", function () {
     it("should send a message and decrypt it", async function () {
       const [chunks, proofs] = await encryptForContract(signers.alice, "Hello Bob");
-      await (await contract.connect(signers.alice).sendMessage(signers.bob.address, chunks, proofs)).wait();
+      const encryptedReaction = await encryptReaction(signers.alice, 0n);
 
-      const convs = await contract.connect(signers.alice).myConversations();
+      await (await contract.connect(signers.alice).sendMessage(
+        signers.bob.address,
+        chunks,
+        proofs,
+        encryptedReaction.handles[0],
+        encryptedReaction.inputProof
+      )).wait();
+
+      const convs = await contract.connect(signers.alice).myConversations(signers.alice.address);
       expect(convs.length).to.equal(1);
       expect(convs[0].sender).to.equal(signers.alice.address);
       expect(convs[0].receiver).to.equal(signers.bob.address);
@@ -156,15 +171,28 @@ describe("FHEZamaTalk", function () {
     it("should allow reply (sendMessage again) and decrypt reply", async function () {
       // Alice sends the first message
       const [initChunks, initProofs] = await encryptForContract(signers.alice, "Hello Bob");
-      await (await contract.connect(signers.alice).sendMessage(signers.bob.address, initChunks, initProofs)).wait();
+      const aliceReaction = await encryptReaction(signers.alice, 0n);
+      await (await contract.connect(signers.alice).sendMessage(
+        signers.bob.address,
+        initChunks,
+        initProofs,
+        aliceReaction.handles[0],
+        aliceReaction.inputProof
+      )).wait();
 
-      const convs = await contract.connect(signers.alice).myConversations();
-      expect(convs.length).to.be.greaterThan(0);
+      const convs = await contract.connect(signers.alice).myConversations(signers.alice.address);
       const convId = convs[0].id;
 
       // Bob replies
       const [chunks, proofs] = await encryptForContract(signers.bob, "Hi Alice, got your messages");
-      await (await contract.connect(signers.bob).sendMessage(signers.alice.address, chunks, proofs)).wait();
+      const bobReaction = await encryptReaction(signers.bob, 0n);
+      await (await contract.connect(signers.bob).sendMessage(
+        signers.alice.address,
+        chunks,
+        proofs,
+        bobReaction.handles[0],
+        bobReaction.inputProof
+      )).wait();
 
       const msgs = await contract.connect(signers.alice).getMessages(convId);
       const last = msgs[msgs.length - 1];
@@ -182,16 +210,23 @@ describe("FHEZamaTalk", function () {
 
   describe("Conversations and messages queries", function () {
     it("should return empty conversations for a new user", async () => {
-      const convs = await contract.connect(signers.alice).myConversations();
+      const convs = await contract.connect(signers.alice).myConversations(signers.alice.address);
       expect(convs.length).to.equal(0);
     });
 
     it("should list conversations for both sender and receiver", async () => {
       const [chunks, proofs] = await encryptForContract(signers.alice, "Hey Bob");
-      await (await contract.connect(signers.alice).sendMessage(signers.bob.address, chunks, proofs)).wait();
+      const reaction = await encryptReaction(signers.alice, 0n);
+      await (await contract.connect(signers.alice).sendMessage(
+        signers.bob.address,
+        chunks,
+        proofs,
+        reaction.handles[0],
+        reaction.inputProof
+      )).wait();
 
-      const convsAlice = await contract.connect(signers.alice).myConversations();
-      const convsBob = await contract.connect(signers.bob).myConversations();
+      const convsAlice = await contract.connect(signers.alice).myConversations(signers.alice.address);
+      const convsBob = await contract.connect(signers.bob).myConversations(signers.bob.address);
 
       expect(convsAlice.length).to.equal(1);
       expect(convsBob.length).to.equal(1);
@@ -200,16 +235,136 @@ describe("FHEZamaTalk", function () {
 
     it("should return all messages in a conversation", async () => {
       const [chunks1, proofs1] = await encryptForContract(signers.alice, "Message 1");
-      await (await contract.connect(signers.alice).sendMessage(signers.bob.address, chunks1, proofs1)).wait();
+      const r1 = await encryptReaction(signers.alice, 0n);
+      await (await contract.connect(signers.alice).sendMessage(
+        signers.bob.address,
+        chunks1,
+        proofs1,
+        r1.handles[0],
+        r1.inputProof
+      )).wait();
 
       const [chunks2, proofs2] = await encryptForContract(signers.bob, "Message 2");
-      await (await contract.connect(signers.bob).sendMessage(signers.alice.address, chunks2, proofs2)).wait();
+      const r2 = await encryptReaction(signers.bob, 0n);
+      await (await contract.connect(signers.bob).sendMessage(
+        signers.alice.address,
+        chunks2,
+        proofs2,
+        r2.handles[0],
+        r2.inputProof
+      )).wait();
 
-      const convs = await contract.connect(signers.alice).myConversations();
+      const convs = await contract.connect(signers.alice).myConversations(signers.alice.address);
       const convId = convs[0].id;
 
       const msgs = await contract.connect(signers.alice).getMessages(convId);
       expect(msgs.length).to.equal(2);
     });
   });
+
+  describe("Message queries and reactions", function () {
+    it("should get a single message by id", async () => {
+      const [chunks, proofs] = await encryptForContract(signers.alice, "SingleMsg");
+      const r = await encryptReaction(signers.alice, 0n);
+      await (await contract.connect(signers.alice).sendMessage(
+        signers.bob.address,
+        chunks,
+        proofs,
+        r.handles[0],
+        r.inputProof
+      )).wait();
+
+      const convs = await contract.connect(signers.alice).myConversations(signers.alice.address);
+      const convId = convs[0].id;
+      const msgs = await contract.connect(signers.alice).getMessages(convId);
+
+      const msgId = msgs[0].id;
+      const singleMsg = await contract.connect(signers.alice).getMessage(msgId);
+
+      expect(singleMsg.id).to.equal(msgId);
+      expect(singleMsg.sender).to.equal(signers.alice.address);
+      expect(singleMsg.receiver).to.equal(signers.bob.address);
+    });
+
+    it("should revert when getMessage with invalid id", async () => {
+      await expect(contract.connect(signers.alice).getMessage(999)).to.be.revertedWith(
+        "Message does not exist"
+      );
+    });
+
+    it("should allow changing reaction by sender", async () => {
+      const [chunks, proofs] = await encryptForContract(signers.alice, "React test");
+      const r = await encryptReaction(signers.alice, 0n);
+      await (await contract.connect(signers.alice).sendMessage(
+        signers.bob.address,
+        chunks,
+        proofs,
+        r.handles[0],
+        r.inputProof
+      )).wait();
+
+      const convs = await contract.connect(signers.alice).myConversations(signers.alice.address);
+      const convId = convs[0].id;
+      const msgs = await contract.connect(signers.alice).getMessages(convId);
+      const msgId = msgs[0].id;
+
+      // New reaction = 1
+      const newReaction = await encryptReaction(signers.alice, 1n);
+
+      await expect(
+        contract.connect(signers.alice).changeReaction(msgId, newReaction.handles[0], newReaction.inputProof)
+      )
+        .to.emit(contract, "ReactionChanged")
+        .withArgs(msgId, signers.alice.address);
+    });
+
+    it("should allow changing reaction by receiver", async () => {
+      const [chunks, proofs] = await encryptForContract(signers.alice, "React test 2");
+      const r = await encryptReaction(signers.alice, 0n);
+      await (await contract.connect(signers.alice).sendMessage(
+        signers.bob.address,
+        chunks,
+        proofs,
+        r.handles[0],
+        r.inputProof
+      )).wait();
+
+      const convs = await contract.connect(signers.alice).myConversations(signers.alice.address);
+      const convId = convs[0].id;
+      const msgs = await contract.connect(signers.alice).getMessages(convId);
+      const msgId = msgs[0].id;
+
+      const newReaction = await encryptReaction(signers.bob, 2n);
+
+      await expect(
+        contract.connect(signers.bob).changeReaction(msgId, newReaction.handles[0], newReaction.inputProof)
+      )
+        .to.emit(contract, "ReactionChanged")
+        .withArgs(msgId, signers.bob.address);
+    });
+
+    it("should revert reaction change if not participant", async () => {
+      const [chunks, proofs] = await encryptForContract(signers.alice, "Not allowed");
+      const r = await encryptReaction(signers.alice, 0n);
+      await (await contract.connect(signers.alice).sendMessage(
+        signers.bob.address,
+        chunks,
+        proofs,
+        r.handles[0],
+        r.inputProof
+      )).wait();
+
+      const convs = await contract.connect(signers.alice).myConversations(signers.alice.address);
+      const convId = convs[0].id;
+      const msgs = await contract.connect(signers.alice).getMessages(convId);
+      const msgId = msgs[0].id;
+
+      const badReaction = await encryptReaction(signers.deployer, 3n);
+
+      await expect(
+        contract.connect(signers.deployer).changeReaction(msgId, badReaction.handles[0], badReaction.inputProof)
+      ).to.be.revertedWith("Not authorized to change reaction");
+    });
+  });
+
 });
