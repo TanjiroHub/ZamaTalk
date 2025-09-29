@@ -5,7 +5,7 @@ import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   title: "ZamaTalk",
-  description: "ZamaTalk",
+  description: "ZamaTalk"
 };
 
 export default async function RootLayout({

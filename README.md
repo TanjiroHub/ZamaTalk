@@ -131,9 +131,6 @@ FHEVM-ZAMATALK/
 │       │   ├── FHEZamaTalkABI.ts
 │       │   └── FHEZamaTalkAddresses.ts
 │       ├── app/                    # Next.js app directory
-|       |   ├── api/v1
-|       |   |       ├── encrypt.ts
-|       |   |       ├── decrypt.ts
 │       │   ├── chat/               # Chat pages/layout
 │       │   ├── layout.tsx
 │       │   ├── page.tsx
