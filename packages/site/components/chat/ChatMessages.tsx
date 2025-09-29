@@ -86,7 +86,7 @@ const ChatMessages: React.FC = () => {
   useEffect(() => {
     async function loadMessages() {
       setLoading(true);
-      const encryptMessages = await fetchActiveMessages(activeConversation?.id ?? 0);
+      const encryptMessages = await fetchActiveMessages(Number(activeConversation?.id) ?? 0);
       const decryptMessage = await decryptMessages(encryptMessages ?? []);
 
       if (decryptMessage === null) {
@@ -104,12 +104,12 @@ const ChatMessages: React.FC = () => {
 
   useEffect(() => {
     async function handler(messageId: number, conversationId: number, from: string, to: string) {
-      if (to?.toLowerCase() === acount?.toLowerCase() && activeConversation?.id === conversationId) {
+      if (to?.toLowerCase() === acount?.toLowerCase() && (Number(activeConversation?.id) === 0 || Number(activeConversation?.id) === Number(conversationId))) {
         const encryptMessages = await fetchMessage(messageId);
         const decryptMessage = await decryptMessages(encryptMessages ? [encryptMessages] : []);
         setActiveMessages([...getActiveMessages(), ...(decryptMessage ?? [])]);
       }
-      fetchConversations();
+      await fetchConversations();
     }
 
     contractTx?.on("MessageSent", handler);
@@ -124,7 +124,7 @@ const ChatMessages: React.FC = () => {
       const idx = messages.findIndex((m: MessageType) => m.id === Number(messageId));
       if (idx < 0 || from?.toLowerCase() === acount?.toLowerCase()) return;
 
-      const encryptMessages = await fetchMessage(messageId);
+      const encryptMessages = await fetchMessage(Number(messageId));
       const decryptMessage = await decryptMessages(encryptMessages ? [encryptMessages] : []);
 
       if (decryptMessage?.length) {

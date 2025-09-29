@@ -32,13 +32,13 @@ export const useFHEZamaTalkConversationStore =
 
     conversations: [],
     setConversations: (convos) => set({ conversations: convos }),
-    addConversation: (convo) => set((s) => ({ conversations: [...s.conversations, convo] })),
+    addConversation: (convo) => set((s) => ({ conversations: [convo, ...s.conversations] })),
     fetchConversations: async () => {
       try {
-        const { contractTx } = useFHEZamaTalkStore.getState();
+        const { contractView } = useFHEZamaTalkStore.getState();
         const { profile } = useFHEZamaTalkLoginStore.getState();
 
-        const conversations = await contractTx?.myConversations(profile?.wallet);
+        const conversations = await contractView?.myConversations(profile?.wallet);
         const sortedConversations = [...conversations].sort((a: Conversation, b: Conversation) => (Number(b.createdAt ?? 0)) - (Number(a.createdAt ?? 0)));
         set({ conversations: sortedConversations });
 
@@ -56,8 +56,8 @@ export const useFHEZamaTalkConversationStore =
     getActiveMessages: () => get().activeMessages,
     fetchActiveMessages: async (conversationId: number) => {
       try {
-        const { contractTx } = useFHEZamaTalkStore.getState();
-        const messages = await contractTx?.getMessages(conversationId)
+        const { contractView } = useFHEZamaTalkStore.getState();
+        const messages = await contractView?.getMessages(conversationId)
 
         return messages
       } catch (err) {

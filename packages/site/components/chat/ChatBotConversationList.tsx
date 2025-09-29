@@ -53,7 +53,7 @@ const ChatBotConversationList: React.FC = () => {
               key={conversation.id}
               name={getConversationDisplayName(acount, conversation)}
               info={renderTime(conversation.createdAt ?? 0)}
-              active={activeConversation?.id === conversation.id}
+              active={activeConversation?.id === 0 || activeConversation?.id === conversation.id}
             >
               <Avatar name={getConversationDisplayName(acount, conversation)} />
             </Conversation>

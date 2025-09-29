@@ -22,7 +22,7 @@ const ChatHeader: React.FC = () => {
   const { push } = useRouter();
   const { acount, ethersSigner, disconnect } = useMetaMaskEthersSigner();
   const { profile, profiles, getProfiles } = useFHEZamaTalkLoginStore();
-  const { activeConversation, conversations, addConversation, setActiveConversation } = useFHEZamaTalkConversationStore()
+  const { conversations, addConversation, setActiveConversation, setActiveMessages } = useFHEZamaTalkConversationStore()
 
   useEffect(() => {
     const getBalance = async () => {
@@ -32,24 +32,16 @@ const ChatHeader: React.FC = () => {
     getBalance();
   }, [ethersSigner]);
 
-  function isConversationExists(conversations: ConversationType[], wallet: string): boolean {
-    return conversations.some(
+  function checkConversationExists(conversations: ConversationType[], wallet: string): ConversationType | undefined {
+    return conversations.find(
       (c) =>
         c.sender?.toLowerCase() === wallet.toLowerCase() ||
         c.receiver?.toLowerCase() === wallet.toLowerCase()
     );
   }
 
-  function isDifferentFromActive(activeConversation: ConversationType | null, wallet: string): boolean {
-    return (
-      wallet.toLowerCase() !== activeConversation?.sender?.toLowerCase() &&
-      wallet.toLowerCase() !== activeConversation?.receiver?.toLowerCase()
-    );
-  }
-
-
   function handleAddFriend(userProfile: UserProfile): void {
-    const convo: ConversationType = {
+    let convo: ConversationType = {
       id: 0,
       receiverName: userProfile.name,
       info: userProfile.wallet,
@@ -59,13 +51,14 @@ const ChatHeader: React.FC = () => {
       status: 1,
     };
 
-    if (!isConversationExists(conversations, userProfile.wallet)) {
+    if(checkConversationExists(conversations, userProfile.wallet)) {
+      convo = checkConversationExists(conversations, userProfile.wallet) as ConversationType
+    } else {
       addConversation(convo);
     }
 
-    if (isDifferentFromActive(activeConversation, userProfile.wallet)) {
-      setActiveConversation(convo);
-    }
+    setActiveConversation(convo);
+    setActiveMessages([])
   }
 
   async function handleSearch(q: string) {
@@ -161,7 +154,7 @@ const ChatHeader: React.FC = () => {
 
           <div className="p-4 flex flex-col">
             <div className="flex justify-center">
-              <Avatar name={"Jony Nguyen"} />
+              <Avatar name={profile?.name ?? ''} />
             </div>
 
             <div className="mt-3 space-y-4">
