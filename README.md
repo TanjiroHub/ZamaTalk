@@ -1,149 +1,198 @@
-# FHEVM React Template
 
-The FHEVM React Template is an ultra-minimal React project for building and running an FHEVM-enabled dApp.
-It works alongside the [fhevm-hardhat-template](https://github.com/zama-ai/fhevm-hardhat-template)
-and provides a simple development frontend for interacting with the `FHECounter.sol` contract.
+<p align="center">
+  <img src="/packages//site//public/zama-talk.svg" alt="FHEVM ZamaTalk Logo" width="180"/>
+</p>
 
-This template also illustrates how to run your FHEVM-dApp on both Sepolia as well as a local Hardhat Node (much faster).
+# FHEVM ZamaTalk
 
-## Features
+FHEVM ZamaTalk is a **privacy-preserving decentralized messaging application** built on top of the [Zama Fully Homomorphic Encryption Virtual Machine (FHEVM)](https://zama.ai).  
+It demonstrates how **encrypted smart contracts** can power secure communication while keeping all user data private — even from the blockchain itself.
 
-- **@zama-fhe/relayer-sdk**: Fully Homomorphic Encryption for Ethereum Virtual Machine
-- **React**: Modern UI framework for building interactive interfaces
-- **Next.js**: Next-generation frontend build tool
-- **Tailwind**: Utility-first CSS framework for rapid UI development
+---
 
-## Requirements
+## 📖 Table of Contents
+1. [Introduction](#-introduction)
+2. [Core Features](#-core-features)
+3. [Future Vision](#-future-vision)
+4. [Optimizations](#-optimizations)
+5. [Roadmap](#-roadmap)
+6. [Getting Started](#-getting-started)
+7. [Project Structure](#-project-structure)
+8. [Usage Scenarios](#-usage-scenarios)
+9. [Limitations](#-limitations)
+10. [License](#-license)
 
-- You need to have Metamask browser extension installed on your browser.
+---
 
-## Local Hardhat Network (to add in MetaMask)
+## 🚀 Introduction
 
-Follow the step-by-step guide in the [Hardhat + MetaMask](https://docs.metamask.io/wallet/how-to/run-devnet/) documentation to set up your local devnet using Hardhat and MetaMask.
+ZamaTalk is designed to show how **end-to-end encrypted chat** can run entirely on-chain with **FHE smart contracts**.  
+Unlike traditional dApps, messages are encrypted **before they hit the blockchain**, and can only be decrypted locally by authorized users.
 
-- Name: Hardhat
-- RPC URL: http://127.0.0.1:8545
-- Chain ID: 31337
-- Currency symbol: ETH
+This project demonstrates:
+- Secure, private messaging powered by **FHEVM**.
+- A modular **frontend (Next.js + React + Zustand + Etherjs + zama-fhe/relayer-sdk)** for UI.
+- A robust **backend (Hardhat + Solidity)** for encrypted message storage and reactions.
 
-## Install
+---
 
-### Automatic install
+## ✨ Core Features
 
-1. Clone this repository.
-2. From the repo root, run:
-```sh
-# - git clone "https://github.com/zama-ai/fhevm-hardhat-template.git" into <root>/packages
-# - npm install
-# - auto-depoy on hardhat node
-node ./scripts/install.mjs
+- 🔐 **Fully Encrypted Messaging** using Zama FHEVM.  
+- 😃 **Reactions to messages** (like, love, etc.), stored encrypted on-chain.  
+- 🛡️ **Secure storage** with no plaintext leakage.  
+- ⚡ **Optimized decryption** for batch-processing multiple messages at once.  
+- 💻 **Modern frontend** using Next.js, React, TailwindCSS, Zustand, Etherjs, zama-fhe/relayer-sdk.  
+- 🧩 **Smart contract modularity** with Hardhat.  
+
+---
+
+## 🔮 Future Vision
+
+We aim to make FHEVM ZamaTalk a **reference implementation** for building private dApps.  
+The long-term goal is to integrate **cross-chain privacy-preserving messaging**, making it possible for users to chat securely across Ethereum, L2s, and beyond.
+
+---
+
+## ⚡ Optimizations
+
+We have implemented several optimizations to ensure **scalability and speed**:
+
+1. **Batch Decryption** – decrypt multiple messages at once, significantly reducing overhead.  
+2. **Lightweight ABI Calls** – minimized contract ABI interactions for better gas efficiency.  
+3. **Client-Side Caching** – messages and reactions are cached in local stores (Zustand) to avoid unnecessary re-fetches.  
+4. **Optimized Hooks** – custom React hooks (`useFHEZamaTalk`, `useInMemoryStorage`) for clean state management.  
+
+These make the app **much faster** while maintaining full encryption guarantees.
+
+---
+
+## 🛣️ Roadmap
+
+**Completed so far:**
+- ✅ Encrypted messaging & reactions
+- ✅ Optimized batch decryption
+- ✅ Fully working dApp with frontend + contracts
+
+**Next milestones:**
+1. 🖼️ **User Avatars** – allow users to upload profile pictures.  
+2. 📑 **Pagination** – for messages, conversations, and friend lists.  
+3. 🌉 **Cross-chain Support** – enabling FHE chat across multiple blockchains.  
+
+---
+
+## 🛠️ Getting Started
+
+### 1. Clone the repository
+```bash
+git https://github.com/TanjiroHub/ZamaTalk.git
+cd ZamaTalk
 ```
 
-### Manual install
-
-1. Clone this repository.
-2. From the repo root, execute the following:
-```sh
-cd ./packages
-git clone "https://github.com/zama-ai/fhevm-hardhat-template.git"
-cd ..
+### 2. Install dependencies
+```bash
 npm install
 ```
 
-## Setup
-
-1. Setup your hardhat environment variables:
-
-Follow the detailed instructions in the [FHEVM documentation](https://docs.zama.ai/protocol/solidity-guides/getting-started/setup#set-up-the-hardhat-configuration-variables-optional) to setup `MNEMONIC` + `INFURA_API_KEY` Hardhat environment variables
-
-2. Start a local Hardhat node (new terminal):
-
-```sh
+### 3. Compile contracts
+```bash
 cd packages/fhevm-hardhat-template
-npx hardhat node --verbose
-# Default RPC: http://127.0.0.1:8545  | chainId: 31337
+npx hardhat compile
 ```
 
-3. Deploy `FHECounter` to the local node:
-
-```sh
-# still in packages/fhevm-hardhat-template
-npx hardhat deploy --network localhost
+### 4. Run frontend
+```bash
+cd ../site
+npm run dev
 ```
 
-4. Deploy to Sepolia:
+Your app should now be running at [http://localhost:3000](http://localhost:3000).
 
-Follows instructions in the [FHEVM documentation to setup your Hardhat project for Sepolia](https://docs.zama.ai/protocol/solidity-guides/getting-started/setup#set-up-the-hardhat-configuration-variables-optional)
+---
 
-```sh
-# still in packages/fhevm-hardhat-template
-npx hardhat deploy --network sepolia
+## 📂 Project Structure
+
+```
+FHEVM-ZAMATALK/
+├── packages/
+│   ├── fhevm-hardhat-template/     # Hardhat project for contracts
+│   │   ├── contracts/              # Solidity contracts
+│   │   │   ├── FHEZamaTalk.sol
+│   │   │   └── FHECounterSepolia.ts
+│   │   ├── deploy/                 # Deployment scripts
+│   │   ├── deployments/            # Saved deployment artifacts
+│   │   ├── tasks/                  # Custom Hardhat tasks
+│   │   ├── test/                   # Contract tests
+│   │   ├── hardhat.config.ts
+│   │   └── ...
+│   │
+│   └── site/                       # React (Next.js) frontend
+│       ├── abi/                    # ABI files for contracts
+│       │   ├── FHEZamaTalkABI.ts
+│       │   └── FHEZamaTalkAddresses.ts
+│       ├── app/                    # Next.js app directory
+|       |   ├── api/v1
+|       |   |       ├── encrypt.ts
+|       |   |       ├── decrypt.ts
+│       │   ├── chat/               # Chat pages/layout
+│       │   ├── layout.tsx
+│       │   ├── page.tsx
+│       │   └── providers.tsx
+│       ├── components/             # React UI components
+│       │   ├── chat/               # Chat-specific UI
+│       │   │   ├── ChatBotConversationList.tsx
+│       │   │   ├── ChatHeader.tsx
+│       │   │   ├── ChatMessageHeader.tsx
+│       │   │   ├── ChatMessageInput.tsx
+│       │   │   ├── ChatMessages.tsx
+│       │   │   └── ChatSidebarUserHeader.tsx
+│       │   └── shared/             # Shared UI
+│       │       ├── Avatar.tsx
+│       │       ├── Container.tsx
+│       │       └── Conversation.tsx
+│       ├── constants/              # Constant values
+│       ├── hooks/                  # React hooks
+│       │   ├── useFHEZamaTalk.tsx
+│       │   └── useInMemoryStorage.tsx
+│       ├── public/                 # Static files
+│       ├── scripts/                # Helper scripts
+│       │   ├── encrypt.ts
+│       │   ├── decrypt.ts
+│       │   └── index.ts
+│       ├── store/                  # Zustand stores
+│       │   ├── useFHEZamaTalkConversationStore.ts
+│       │   ├── useFHEZamaTalkLoginStore.ts
+│       │   └── useFHEZamaTalkStore.ts
+│       ├── styles/                 # Styling (Tailwind, etc.)
+│       ├── types/                  # TypeScript types
+│       └── utils/                  # Utility functions
+│           └── index.ts
+│
+├── README.md
+├── LICENSE
+├── package.json
+├── tsconfig.json
+└── ...
+
 ```
 
-## Run frontend in mock mode
+---
 
-1. Start a local Hardhat node (new terminal):
+## 🎯 Usage Scenarios
 
-```sh
-npx hardhat node --verbose
-```
+- **Private messaging dApps** – where confidentiality is essential.  
+- **On-chain DAOs** – encrypted governance communications.  
+- **Healthcare/Finance** – industries needing **zero-trust, encrypted communication**.  
 
-2. From the `<root>/packages/site` run
+---
 
-```sh
-npm run dev:mock
-```
+## ⚠️ Limitations
 
-3. In your browser open `http://localhost:3000`
+- FHE operations remain more expensive than plaintext.  
+- Current version optimized for **demo & research**, not mass production.  
+- Performance depends on **the relayer Zama’s decryption speed**.  
 
-4. Open Metamask connect to local Hardhat node
-i. Select Add network.
-ii. Select Add a network manually.
-iii. Enter your Hardhat Network RPC URL, http://127.0.0.1:8545/ (or http://localhost:8545).
-iv. Enter your Hardhat Network chain ID, 31337 (or 0x539 in hexadecimal format).
-
-## How to fix Hardhat Node + Metamask Errors ?
-
-When using MetaMask as a wallet provider with a development node like Hardhat, you may encounter two common types of errors:
-
-### 1. ⚠️ Nonce Mismatch ❌💥
-MetaMask tracks wallet nonces (the number of transactions sent from a wallet). However, if you restart your Hardhat node, the nonce is reset on the dev node, but MetaMask does not update its internal nonce tracking. This discrepancy causes a nonce mismatch error.
-
-### 2. ⚠️ View Function Call Result Mismatch ❌💥
-
-MetaMask caches the results of view function calls. If you restart your Hardhat node, MetaMask may return outdated cached data corresponding to a previous instance of the node, leading to incorrect results.
-
-### ✅ How to Fix Nonce Mismatch:
-
-To fix the nonce mismatch error, simply clear the MetaMask cache:
-
-1. Open the MetaMask browser extension.
-2. Select the Hardhat network.
-3. Go to Settings > Advanced.
-4. Click the "Clear Activity Tab" red button to reset the nonce tracking.
-
-The correct way to do this is also explained [here](https://docs.metamask.io/wallet/how-to/run-devnet/).
-
-### ✅ How to Fix View Function Return Value Mismatch:
-
-To fix the view function result mismatch:
-
-1. Restart the entire browser. MetaMask stores its cache in the extension's memory, which cannot be cleared by simply clearing the browser cache or using MetaMask's built-in cache cleaning options.
-
-By following these steps, you can ensure that MetaMask syncs correctly with your Hardhat node and avoid potential issues related to nonces and cached view function results.
-
-## Project Structure Overview
-
-### Key Files/Folders
-
-* **`<root>/packages/site/fhevm`**: This folder contains the essential hooks needed to interact with FHEVM-enabled smart contracts. It is meant to be easily copied and integrated into any FHEVM + React project.
-
-* **`<root>/packages/site/hooks/useFHECounter.tsx`**: A simple React custom hook that demonstrates how to use the `useFhevm` hook in a basic use case, serving as an example of integration.
-
-### Secondary Files/Folders
-
-* **`<root>/packages/site/hooks/metamask`**: This folder includes hooks designed to manage the MetaMask Wallet provider. These hooks can be easily adapted or replaced to support other wallet providers, following the EIP-6963 standard,
-* Additionally, the project is designed to be flexible, allowing developers to easily replace `ethers.js` with a more React-friendly library of their choice, such as `Wagmi`.
+---
 
 ## Documentation
 
@@ -156,6 +205,13 @@ By following these steps, you can ensure that MetaMask syncs correctly with your
 - [FHEVM Discord Community](https://discord.com/invite/zama)
 - [GitHub Issues](https://github.com/zama-ai/fhevm-react-template/issues)
 
-## License
+---
 
-This project is licensed under the BSD-3-Clause-Clear License - see the LICENSE file for details.
+## 📜 License
+
+This project is licensed under the **MIT License**.  
+See [LICENSE](./LICENSE) for details.
+
+---
+
+<p align="center">Made with ❤️ and FHE by ZamaTalk contributors.</p>
