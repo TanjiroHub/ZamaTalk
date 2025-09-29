@@ -8,6 +8,7 @@ import type {
 import { isFhevmWindowType, RelayerSDKLoader } from "./RelayerSDKLoader";
 import { publicKeyStorageGet, publicKeyStorageSet } from "./PublicKeyStorage";
 import { FhevmInstance, FhevmInstanceConfig } from "../fhevmTypes";
+import { RELAYER_ENDPOINT } from "./constants";
 
 export class FhevmReactError extends Error {
   code: string;
@@ -297,6 +298,7 @@ export const createFhevmInstance = async (parameters: {
     network: providerOrUrl,
     publicKey: pub.publicKey,
     publicParams: pub.publicParams,
+    relayerUrl: RELAYER_ENDPOINT,
   };
 
   // notify that state === "creating"
