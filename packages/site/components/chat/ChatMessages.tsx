@@ -29,6 +29,7 @@ const ChatMessages: React.FC = () => {
     activeMessages,
     reactionMessage,
     fetchMessage,
+    getActiveConversation,
     getActiveMessages,
     fetchActiveMessages,
     setActiveMessages,
@@ -104,10 +105,12 @@ const ChatMessages: React.FC = () => {
 
   useEffect(() => {
     async function handler(messageId: number, conversationId: number, from: string, to: string) {
-      if (to?.toLowerCase() === acount?.toLowerCase() && (Number(activeConversation?.id) === 0 || Number(activeConversation?.id) === Number(conversationId))) {
+      if (to?.toLowerCase() === acount?.toLowerCase() && Number(getActiveConversation()?.id) === Number(conversationId)) {
         const encryptMessages = await fetchMessage(messageId);
         const decryptMessage = await decryptMessages(encryptMessages ? [encryptMessages] : []);
         setActiveMessages([...getActiveMessages(), ...(decryptMessage ?? [])]);
+      } else if (getActiveConversation()?.id === 0) {
+        setActiveConversation({ ...activeConversation, id: Number(conversationId) })
       }
       await fetchConversations();
     }

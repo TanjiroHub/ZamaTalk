@@ -1,6 +1,6 @@
 export type Conversation = {
   id: number;
-  info: string;
+  info?: string;
   sender?: string;
   receiver?: string;
   senderName?: string;

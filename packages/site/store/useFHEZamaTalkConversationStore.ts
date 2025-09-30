@@ -13,6 +13,7 @@ type ZamaTalkConversationStore = {
   fetchConversations: () => Promise<Conversation[] | void>;
 
   activeConversation: Conversation | null;
+  getActiveConversation: () => Conversation | null;
   setActiveConversation: (conversation: Conversation | null) => void;
 
   activeMessages: Message[];
@@ -32,6 +33,7 @@ export const useFHEZamaTalkConversationStore =
 
     conversations: [],
     setConversations: (convos) => set({ conversations: convos }),
+    getActiveConversation: () => get().activeConversation,
     addConversation: (convo) => set((s) => ({ conversations: [convo, ...s.conversations] })),
     fetchConversations: async () => {
       try {
