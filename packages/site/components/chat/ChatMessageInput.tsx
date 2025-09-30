@@ -11,7 +11,7 @@ const ChatMessageInput: React.FC = () => {
 
   const { ethersSigner, acount } = useMetaMaskEthersSigner();
   const { fheInstance, contractAddress } = useFHEZamaTalkStore();
-  const { activeMessages, setLoading, sendMessage, setActiveMessages, fetchConversations } = useFHEZamaTalkConversationStore();
+  const { activeMessages, getActiveConversation, setLoading, sendMessage, setActiveMessages, fetchConversations, fetchActiveMessages, } = useFHEZamaTalkConversationStore();
 
   function handleChange(text: string) {
     setValue(text);
@@ -24,9 +24,12 @@ const ChatMessageInput: React.FC = () => {
       const messsagesEnc = await encryptChunksForContract(contractAddress, fheInstance, ethersSigner, message);
       const reactionEnc = await encryptStringForContract(contractAddress, fheInstance, ethersSigner, String(ReactionType.NONE));
       await sendMessage(messsagesEnc, reactionEnc);
-      fetchConversations();
+      await fetchConversations();
+      const messages = await fetchActiveMessages(getActiveConversation()?.id ?? 0);
+      const latestMessage = messages[messages.length - 1];
+      
       setActiveMessages([...activeMessages, {
-        id: 0,
+        id: Number(latestMessage.id),
         sender: '',
         content: message,
         createdAt: Date.now(),

@@ -13,12 +13,13 @@ type ZamaTalkConversationStore = {
   fetchConversations: () => Promise<Conversation[] | void>;
 
   activeConversation: Conversation | null;
+  getActiveConversation: () => Conversation | null;
   setActiveConversation: (conversation: Conversation | null) => void;
 
   activeMessages: Message[];
   setActiveMessages: (messages: Message[]) => void;
   getActiveMessages: () => Message[];
-  fetchActiveMessages: (id: number) => Promise<EncryptedMessage[] | void>;
+  fetchActiveMessages: (id: number) => Promise<EncryptedMessage[]>;
   sendMessage: (messages: { ciphertexts: Uint8Array[]; proofs: Uint8Array[] }, reaction: { ciphertext: Uint8Array; proof: Uint8Array }) => Promise<void>;
   fetchMessage: (id: number) => Promise<EncryptedMessage | void>;
 
@@ -32,6 +33,7 @@ export const useFHEZamaTalkConversationStore =
 
     conversations: [],
     setConversations: (convos) => set({ conversations: convos }),
+    getActiveConversation: () => get().activeConversation,
     addConversation: (convo) => set((s) => ({ conversations: [convo, ...s.conversations] })),
     fetchConversations: async () => {
       try {
@@ -62,6 +64,7 @@ export const useFHEZamaTalkConversationStore =
         return messages
       } catch (err) {
         console.error("Get active messages failed", err);
+        return []
       }
     },
     sendMessage: async (messageEnc, reactionEnc) => {

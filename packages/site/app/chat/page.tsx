@@ -19,10 +19,21 @@ import { useFHEZamaTalkConversationStore } from "@/store/useFHEZamaTalkConversat
 
 const Chat: React.FC = () => {
   useFheInstance()
-  const { fhevmIsReady } = useFHEZamaTalkStore();
+  const { contractTx,fhevmIsReady } = useFHEZamaTalkStore();
   const { loading, conversations, activeConversation, fetchConversations } = useFHEZamaTalkConversationStore();
 
   useEffect(() => void fetchConversations(), []);
+
+  useEffect(() => {
+    async function handler(): Promise<void> {
+      if (conversations.length === 0) await fetchConversations();
+    }
+
+    contractTx?.on("MessageSent", handler);
+    return () => {
+      contractTx?.off("MessageSent", handler);
+    };
+  }, []);
 
   const renderSidebar = () => {
     if (conversations.length === 0) return null;
