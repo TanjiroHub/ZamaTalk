@@ -90,14 +90,7 @@ const ChatHeader: React.FC = () => {
     <header className="chat-header h-[90px] zama-bg-gradient flex items-center justify-between px-6 shadow-lg border-b border-yellow-300">
       {/* Logo */}
       <div className="flex items-center gap-3 mr-[5px]">
-        <Image
-          src="/zama-logo.svg"
-          alt="Zama Logo"
-          width={150}
-          height={150}
-          priority
-          className="hover:scale-105 transition-transform duration-300"
-        />
+        <div className="hover:scale-105 transition-transform duration-300 font-bold text-[24px]">FHEVMTALK</div>
       </div>
 
       {/* Search */}
