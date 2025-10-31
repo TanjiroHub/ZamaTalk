@@ -383,4 +383,4 @@ flowchart TB
 
 ## 17. License
 
-MIT License © 2025 FHEVMTalk Contributors.
+MIT License © 2025 FHEVMTalk Contributors
