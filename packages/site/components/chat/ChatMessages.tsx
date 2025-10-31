@@ -84,6 +84,66 @@ const ChatMessages: React.FC = () => {
     return [];
   }
 
+  async function decryptContent(message: EncryptedMessage): Promise<MessageType | null> {
+    if (contractAddress && fheInstance && ethersSigner) {
+      const sig = await FhevmDecryptionSignature.loadOrSign(
+        fheInstance,
+        [contractAddress],
+        ethersSigner,
+        fhevmDecryptionSignatureStorage
+      );
+      if (!sig) return null;
+
+      const handles = message.content.map((h: Uint8Array) => ({ handle: h as unknown as string, contractAddress: contractAddress as `0x${string}`, }));
+      const decryptedHandles = await decryptHandles(fheInstance, handles, sig);
+
+      const decryptedContent = message.content.map((h: Uint8Array) => bigIntToString(BigInt(decryptedHandles[h as any])));
+
+      const newMessage: MessageType = {
+        id: Number(message.id),
+        createdAt: Number(message.createdAt),
+        sender: String(message.sender),
+        content: decryptedContent.join(""),
+        direction: String(message.sender).toLowerCase() === acount?.toLowerCase() ? "outgoing" : "incoming",
+        reaction: "" as ReactionType,
+      };
+
+      return newMessage
+    }
+
+    return null;
+  }
+
+  async function decryptReaction(message: EncryptedMessage): Promise<MessageType | null> {
+    if (contractAddress && fheInstance && ethersSigner) {
+      const sig = await FhevmDecryptionSignature.loadOrSign(
+        fheInstance,
+        [contractAddress],
+        ethersSigner,
+        fhevmDecryptionSignatureStorage
+      );
+      if (!sig) return null;
+
+      const handles = [{ handle: message.reaction as unknown as string, contractAddress: contractAddress as `0x${string}`, },];
+
+      const decryptedHandles = await decryptHandles(fheInstance, handles, sig);
+      const decryptedReaction = [bigIntToString(BigInt(decryptedHandles[message.reaction as any]))]
+
+      const newMessage: MessageType = {
+        id: Number(message.id),
+        createdAt: Number(message.createdAt),
+        sender: String(message.sender),
+        content: "",
+        direction: String(message.sender).toLowerCase() === acount?.toLowerCase() ? "outgoing" : "incoming",
+        reaction: decryptedReaction.join("") as ReactionType,
+      };
+
+      return newMessage
+    }
+
+    return null;
+  }
+
   useEffect(() => {
     async function loadMessages() {
       setLoading(true);
@@ -107,8 +167,10 @@ const ChatMessages: React.FC = () => {
     async function handler(messageId: number, conversationId: number, from: string, to: string) {
       if (to?.toLowerCase() === acount?.toLowerCase() && Number(getActiveConversation()?.id) === Number(conversationId)) {
         const encryptMessages = await fetchMessage(messageId);
-        const decryptMessage = await decryptMessages(encryptMessages ? [encryptMessages] : []);
-        setActiveMessages([...getActiveMessages(), ...(decryptMessage ?? [])]);
+        const decryptMessage = await decryptContent(encryptMessages as EncryptedMessage);
+        if (decryptMessage) {
+          setActiveMessages([...getActiveMessages(), decryptMessage]);
+        }
       } else if (getActiveConversation()?.id === 0) {
         setActiveConversation({ ...activeConversation, id: Number(conversationId) })
       }
@@ -121,6 +183,7 @@ const ChatMessages: React.FC = () => {
     };
   }, [contractTx]);
 
+
   useEffect(() => {
     const handler = async (messageId: number, from: string) => {
       const messages = getActiveMessages();
@@ -128,11 +191,11 @@ const ChatMessages: React.FC = () => {
       if (idx < 0 || from?.toLowerCase() === acount?.toLowerCase()) return;
 
       const encryptMessages = await fetchMessage(Number(messageId));
-      const decryptMessage = await decryptMessages(encryptMessages ? [encryptMessages] : []);
+      const decryptMessage = await decryptReaction(encryptMessages as EncryptedMessage);
 
-      if (decryptMessage?.length) {
+      if (decryptMessage) {
         const updatedMessages = [...messages];
-        updatedMessages[idx] = decryptMessage[0];
+        updatedMessages[idx].reaction = decryptMessage.reaction;
         setActiveMessages(updatedMessages);
       };
     };

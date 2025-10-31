@@ -1,114 +1,109 @@
+# 🧠 FHEVMTalk
+
+### A Privacy-Preserving Decentralized Messaging System on Zama FHEVM
 
 <p align="center">
-  <img src="/packages//site//public/zama-talk.svg" alt="FHEVM ZamaTalk Logo" width="180"/>
+  <img src="/packages/site/public/zama-talk.svg" alt="FHEVMTalk Logo" width="220"/>
 </p>
 
-# FHEVM ZamaTalk
+---
 
-FHEVM ZamaTalk is a **privacy-preserving decentralized messaging application** built on top of the [Zama Fully Homomorphic Encryption Virtual Machine (FHEVM)](https://zama.ai).  
-It demonstrates how **encrypted smart contracts** can power secure communication while keeping all user data private — even from the blockchain itself.
+## 📜 Abstract
+
+**FHEVMTalk** is a **privacy-preserving decentralized messaging system** built on the **Zama Fully Homomorphic Encryption Virtual Machine (FHEVM)**.  
+It enables **secure, end-to-end-encrypted chat** between blockchain accounts without revealing plaintext data to validators, relayers, or storage layers.
+
+Unlike traditional dApps that encrypt data off-chain and store opaque blobs, FHEVMTalk **computes directly on ciphertexts** using the **FHE Solidity library**.  
+This allows smart contracts to execute logic (status updates, reactions, timestamps) over encrypted data — achieving **confidential computation on public blockchains**.
+
+This document merges three essential components:
+
+- 🧩 **README** – Overview, setup, and usage
+- ⚙️ **ARCHITECTURE SPECIFICATION** – Detailed system design, diagrams, and flow
+- 🧠 **SECURITY BRIEF** – Threat model, FHE protection analysis, and audit recommendations
+
+It is designed for **developers, auditors, researchers,** and **teams** exploring confidential smart contract systems on **Zama’s FHEVM**.
 
 ---
 
-## 📖 Table of Contents
-1. [Introduction](#-introduction)
-2. [Core Features](#-core-features)
-3. [Future Vision](#-future-vision)
-4. [Optimizations](#-optimizations)
-5. [Roadmap](#-roadmap)
-6. [Getting Started](#-getting-started)
-7. [Project Structure](#-project-structure)
-8. [Usage Scenarios](#-usage-scenarios)
-9. [Limitations](#-limitations)
-10. [License](#-license)
+## 🧭 Table of Contents
+
+1. Executive Summary
+2. Introduction
+3. System Overview
+4. Design Goals and Principles
+5. Architecture and Flow
+6. Smart Contract Breakdown
+7. Messaging Lifecycle
+8. Cryptographic Operations
+9. Implementation and Engineering Details
+10. Gas Optimization
+11. Security Model and Threat Analysis
+12. Deployment and Testing Guide
+13. Auditing Framework and Verification
+14. Future Extensions and Scalability
+15. Diagrams and Appendices
+16. References
+17. License
 
 ---
 
-## 🚀 Introduction
+## 1. Executive Summary
 
-ZamaTalk is designed to show how **end-to-end encrypted chat** can run entirely on-chain with **FHE smart contracts**.  
-Unlike traditional dApps, messages are encrypted **before they hit the blockchain**, and can only be decrypted locally by authorized users.
+### 🎯 Objective
 
-This project demonstrates:
-- Secure, private messaging powered by **FHEVM**.
-- A modular **frontend (Next.js + React + Zustand + Etherjs + zama-fhe/relayer-sdk)** for UI.
-- A robust **backend (Hardhat + Solidity)** for encrypted message storage and reactions.
+**FHEVMTalk** demonstrates that **Fully Homomorphic Encryption (FHE)** can power real-time decentralized communication while maintaining usability and transparency.  
+It eliminates plaintext visibility across all layers — contract, node, and mempool — using **Zama’s FHEVM execution semantics**.
 
----
+### 🔑 Key Capabilities
 
-## ✨ Core Features
+| Feature                     | Description                                              |
+| --------------------------- | -------------------------------------------------------- |
+| 🔒 Encrypted Profiles       | Only wallet owners can view/modify metadata              |
+| 💬 Encrypted Conversations  | Chats stored as encrypted ciphertext arrays (euint256[]) |
+| 🎭 Encrypted Reactions      | Homomorphic updates to reactions                         |
+| 🧮 Homomorphic Logic        | Addition, comparison, and branching over ciphertext      |
+| 🧰 Composable Privacy       | Interoperable with other FHE contracts                   |
+| 🚀 Reference Implementation | For building confidential communication systems on FHEVM |
 
-- 🔐 **Fully Encrypted Messaging** using Zama FHEVM.  
-- 😃 **Reactions to messages** (like, love, etc.), stored encrypted on-chain.  
-- 🛡️ **Secure storage** with no plaintext leakage.  
-- ⚡ **Optimized decryption** for batch-processing multiple messages at once.  
-- 💻 **Modern frontend** using Next.js, React, TailwindCSS, Zustand, Etherjs, zama-fhe/relayer-sdk.  
-- 🧩 **Smart contract modularity** with Hardhat.  
+### ⚙️ Technical Stack
 
----
-
-## 🔮 Future Vision
-
-We aim to make FHEVM ZamaTalk a **reference implementation** for building private dApps.  
-The long-term goal is to integrate **cross-chain privacy-preserving messaging**, making it possible for users to chat securely across Ethereum, L2s, and beyond.
-
----
-
-## ⚡ Optimizations
-
-We have implemented several optimizations to ensure **scalability and speed**:
-
-1. **Batch Decryption** – decrypt multiple messages at once, significantly reducing overhead.  
-2. **Lightweight ABI Calls** – minimized contract ABI interactions for better gas efficiency.  
-3. **Client-Side Caching** – messages and reactions are cached in local stores (Zustand) to avoid unnecessary re-fetches.  
-4. **Optimized Hooks** – custom React hooks (`useFHEZamaTalk`, `useInMemoryStorage`) for clean state management.  
-
-These make the app **much faster** while maintaining full encryption guarantees.
+| Layer          | Technology                               |
+| -------------- | ---------------------------------------- |
+| Blockchain     | Zama FHEVM (EVM-compatible)              |
+| Smart Contract | Solidity ^0.8.24                         |
+| FHE Library    | @fhevm/solidity/lib/FHE.sol              |
+| Frontend       | Next.js + React + TailwindCSS + Zustand  |
+| Build System   | Hardhat + TypeChain + viaIR Optimization |
+| Network        | Sepolia (ZamaConfig.sol)                 |
 
 ---
 
-## 🛣️ Roadmap
+## 2. Introduction
 
-**Completed so far:**
-- ✅ Encrypted messaging & reactions
-- ✅ Optimized batch decryption
-- ✅ Fully working dApp with frontend + contracts
+Traditional smart contracts expose state publicly; even when encrypted, computation requires decryption off-chain.  
+FHE changes this paradigm — it allows **computation on encrypted data directly**.  
+The **Zama FHEVM** extends Ethereum’s EVM with native ciphertext opcodes, enabling deterministic, verifiable operations over encrypted inputs.
 
-**Next milestones:**
-1. 🖼️ **User Avatars** – allow users to upload profile pictures.  
-2. 📑 **Pagination** – for messages, conversations, and friend lists.  
-3. 🌉 **Cross-chain Support** – enabling FHE chat across multiple blockchains.  
+### Why FHE for Messaging?
 
----
-
-## 🛠️ Getting Started
-
-### 1. Clone the repository
-```bash
-git https://github.com/TanjiroHub/ZamaTalk.git
-cd ZamaTalk
-```
-
-### 2. Install dependencies
-```bash
-npm install
-```
-
-### 3. Compile contracts
-```bash
-cd packages/fhevm-hardhat-template
-npx hardhat compile
-```
-
-### 4. Run frontend
-```bash
-cd ../site
-npm run dev
-```
-
-Your app should now be running at [http://localhost:3000](http://localhost:3000).
+- No plaintext leakage — messages and reactions remain encrypted on-chain.
+- Contracts still enforce business logic (e.g., spam detection, status updates).
+- Enables **confidential dApps** previously impossible in traditional EVM.
 
 ---
+
+## 3. System Overview
+
+### 🧩 Three-Layer Architecture
+
+| Layer                       | Description                                                     |
+| --------------------------- | --------------------------------------------------------------- |
+| **FHEZamaTalk.sol**         | On-chain logic for encrypted users, conversations, and messages |
+| **Frontend (Client)**       | Encrypts/decrypts payloads locally using user FHE keys          |
+| **Relayer / FHEVM Runtime** | Manages FHE key registration and ciphertext transaction routing |
+
+All user-facing data — messages, profiles, and reactions — exist purely as **ciphertexts** on-chain.
 
 ## 📂 Project Structure
 
@@ -170,45 +165,229 @@ FHEVM-ZAMATALK/
 ├── package.json
 ├── tsconfig.json
 └── ...
-
 ```
 
 ---
 
-## 🎯 Usage Scenarios
+## 4. Design Goals and Principles
 
-- **Private messaging dApps** – where confidentiality is essential.  
-- **On-chain DAOs** – encrypted governance communications.  
-- **Healthcare/Finance** – industries needing **zero-trust, encrypted communication**.  
-
----
-
-## ⚠️ Limitations
-
-- FHE operations remain more expensive than plaintext.  
-- Current version optimized for **demo & research**, not mass production.  
-- Performance depends on **the relayer Zama’s decryption speed**.  
+| Principle                    | Explanation                                             |
+| ---------------------------- | ------------------------------------------------------- |
+| 🔐 **Full On-Chain Privacy** | Messages and reactions never appear in plaintext        |
+| ⚡ **Usability**             | Transparent FHE SDK integration with frontend           |
+| 🧭 **Determinism**           | FHEVM ensures consensus-safe encrypted operations       |
+| 🧩 **Composability**         | Integrates with other FHE apps (e.g., games, DAOs)      |
+| 🛡️ **Transparency**          | Ciphertext and proofs are public, content stays private |
+| 📈 **Scalability**           | Supports LayerZero / OApp cross-chain messaging         |
 
 ---
 
-## Documentation
+## 5. Architecture and Flow
 
-- [Hardhat + MetaMask](https://docs.metamask.io/wallet/how-to/run-devnet/): Set up your local devnet step by step using Hardhat and MetaMask.
-- [FHEVM Documentation](https://docs.zama.ai/protocol/solidity-guides/)
-- [FHEVM Hardhat](https://docs.zama.ai/protocol/solidity-guides/development-guide/hardhat)
-- [@zama-fhe/relayer-sdk Documentation](https://docs.zama.ai/protocol/relayer-sdk-guides/)
-- [Setting up MNEMONIC and INFURA_API_KEY](https://docs.zama.ai/protocol/solidity-guides/getting-started/setup#set-up-the-hardhat-configuration-variables-optional)
-- [React Documentation](https://reactjs.org/)
-- [FHEVM Discord Community](https://discord.com/invite/zama)
-- [GitHub Issues](https://github.com/zama-ai/fhevm-react-template/issues)
+```mermaid
+sequenceDiagram
+    participant A as Sender (User Wallet 1)
+    participant B as FHEVM Contract (Relayer + FHEVM)
+    participant C as Receiver (User Wallet 2)
+
+    %% Sender encrypts
+    A->>A: Encrypt message (FHE.encrypt)
+
+    %% Sender sends ciphertext to FHEVM
+    A->>B: Send ciphertext
+
+    %% FHEVM stores encrypted payload
+    B->>B: Store encrypted payload
+
+    %% Receiver retrieves ciphertext
+    C->>B: Retrieve ciphertext
+
+    %% Receiver decrypts
+    C->>C: Decrypt message (FHE.decrypt)
+```
+
+### Sequence Flow
+
+1. Sender encrypts message using recipient’s public FHE key
+2. Frontend sends ciphertext + ZK proof to contract
+3. Contract stores ciphertext
+4. Recipient fetches ciphertext
+5. Recipient decrypts locally
 
 ---
 
-## 📜 License
+## 6. Smart Contract Breakdown
 
-This project is licensed under the **MIT License**.  
-See [LICENSE](./LICENSE) for details.
+**File:** `contracts/FHEZamaTalk.sol`  
+**Solidity:** ^0.8.24  
+**Imports:**
+
+- `@fhevm/solidity/lib/FHE.sol`
+- `@fhevm/solidity/config/ZamaConfig.sol`
+
+### 🔧 Key Structs
+
+```solidity
+struct UserProfile {
+    string name;
+    address wallet;
+    string avatarUrl;
+    uint64 createdAt;
+    bool active;
+}
+
+struct Conversation {
+    uint256 id;
+    address sender;
+    address receiver;
+    string senderName;
+    string receiverName;
+    uint64 createdAt;
+    Status status;
+}
+
+struct Message {
+    uint256 id;
+    uint256 conversationId;
+    address sender;
+    address receiver;
+    uint64 createdAt;
+    Status status;
+    euint256[] content;
+    euint256 reaction;
+}
+```
 
 ---
 
-<p align="center">Made with ❤️ and FHE by ZamaTalk contributors.</p>
+## 7. Messaging Lifecycle
+
+```mermaid
+sequenceDiagram
+    participant A as Sender
+    participant B as FHEVM Contract
+    participant C as Receiver
+    A->>A: Encrypt message (FHE.encrypt)
+    A->>B: Send ciphertext
+    B->>B: Store encrypted payload
+    C->>B: Retrieve ciphertext
+    C->>C: Decrypt message (FHE.decrypt)
+```
+
+---
+
+## 8. Cryptographic Operations
+
+| Operation         | Description                                        |
+| ----------------- | -------------------------------------------------- |
+| `FHE.encrypt()`   | Encrypts uint256 message locally using FHE keypair |
+| `FHE.decrypt()`   | Decrypts ciphertext fetched from chain             |
+| `FHE.add()`       | Homomorphic addition over encrypted counters       |
+| `FHE.cmux()`      | Conditional branching on encrypted boolean         |
+| `FHE.reencrypt()` | Refresh ciphertext after on-chain computation      |
+
+---
+
+## 9. Implementation and Engineering Notes
+
+- All computation paths use `viaIR: true` to prevent "stack too deep" issues.
+- Each encrypted field uses `euint256`, optionally packed.
+- LayerZero integration possible via `trustedRemote[_dstChainId]`.
+- Frontend uses `useFhevm()` hook for seamless key derivation.
+
+---
+
+## 10. Gas Optimization
+
+- Minimal plaintext storage (addresses only).
+- Heavy FHE ops handled in off-chain SDK preprocessing.
+- Consider batching ciphertext arrays.
+- Future optimization: FHE circuit caching.
+
+---
+
+## 11. Security Model and Threat Analysis
+
+| Threat               | Description                 | Mitigation                    |
+| -------------------- | --------------------------- | ----------------------------- |
+| Node Leakage         | Validator sees ciphertext   | FHE prevents plaintext view   |
+| Replay Attack        | Re-send ciphertext          | Include timestamps + nonce    |
+| Unauthorized Decrypt | Other user tries to decrypt | FHE private key bound to user |
+| Cross-Site Leak      | Frontend exposes key        | Use secure local storage only |
+
+### On-Chain Protections
+
+- All ciphertext validated via FHEVM runtime
+- FHE handle authorization enforced per-wallet
+- No re-encryption keys stored on-chain
+
+---
+
+## 12. Deployment and Testing
+
+```bash
+pnpm install
+npx hardhat compile --via-ir
+npx hardhat test
+npx hardhat run scripts/deploy.ts --network sepolia
+```
+
+---
+
+## 13. Auditing Recommendations
+
+- Verify FHE handle access control (`externalEuint256`)
+- Ensure key registration is unique and deterministic
+- Review ZK proof integration in frontend relayer
+- Ensure timestamp logic resists replay attacks
+
+---
+
+## 14. Future Extensions
+
+- Group chat with homomorphic aggregation
+- FHE DAO messaging
+- Private auctions and sealed-bid integration
+- L2 scaling with encrypted rollups
+
+---
+
+## 15. Appendix – Extended Diagrams
+
+```mermaid
+sequenceDiagram
+    participant F as Frontend
+    participant H as FHE Layer
+    participant E as EVM Layer
+
+    %% Frontend encrypts
+    F->>H: Encrypt message
+
+    %% FHE Layer computes on ciphertext
+    H->>H: Compute on Ciphertext
+
+    %% FHE Layer sends result to EVM Layer
+    H->>E: Send encrypted data for storage/verification
+
+    %% EVM Layer stores and emits event
+    E->>E: Store/Verify
+    E->>E: Emit Encrypted Event
+
+    %% Result back to Frontend
+    H->>F: Decrypt
+```
+
+---
+
+## 16. References
+
+- [Zama FHEVM Docs](https://docs.zama.ai/fhevm)
+- [@fhevm/solidity](https://github.com/zama-ai/fhevm-solidity)
+- [LayerZero Docs](https://layerzero.network/)
+- [Homomorphic Encryption Overview](https://en.wikipedia.org/wiki/Homomorphic_encryption)
+
+---
+
+## 17. License
+
+MIT License © 2025 FHEVMTalk Contributors

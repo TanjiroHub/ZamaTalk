@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "ZamaTalk",
+  title: "FhevmTalk",
   description: "ZamaTalk"
 };
 

@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { ethers } from "ethers";
 import { type GenericStringStorage } from "@fhevm/react";
+import { FhevmInstance } from "../../fhevm-react/fhevmTypes";
 
 type FHEZamaTalkStore = {
   contractTx: ethers.Contract | null;
@@ -8,14 +9,14 @@ type FHEZamaTalkStore = {
   contractAddress: string;
   contractIsReady: boolean;
   fhevmIsReady: boolean;
-  fheInstance: any | null;
+  fheInstance: FhevmInstance | null;
   fhevmDecryptionSignatureStorage: GenericStringStorage,
 
   setContracts: (tx: ethers.Contract, view: ethers.Contract) => void;
   setContractAddress: (address: string) => void;
   setContractIsReady: (ready: boolean) => void;
   setFhevmIsReady: (ready: boolean) => void;
-  setFheInstance: (instance: any) => void;
+  setFheInstance: (instance: FhevmInstance) => void;
   setFhevmDecryptionSignatureStorage: (instance: GenericStringStorage) => void;
 };
 

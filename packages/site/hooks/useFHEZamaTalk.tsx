@@ -22,12 +22,12 @@ export const useFheInstance = () => {
   });
 
   useEffect(() => {
-    if (status === "ready" && !fhevmIsReady) {
+    if (status === "ready" && !fhevmIsReady && instance) {
       setFhevmDecryptionSignatureStorage(storage)
       setFheInstance(instance);
       setFhevmIsReady(true);
     }
-  }, [status]);
+  }, [status, instance]);
 };
 
 export const useFHEZamaTalkContracts = () => {
